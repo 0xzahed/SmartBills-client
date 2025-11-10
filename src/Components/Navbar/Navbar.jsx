@@ -33,14 +33,14 @@ const Navbar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/login" className={navLinkStyle}>
+        <Link to="/auth/login" className={navLinkStyle}>
           Login
-        </NavLink>
+        </Link>
       </li>
       <li>
-        <NavLink to="/register" className={registerLinkStyle}>
+        <Link to="/auth/register" className={registerLinkStyle}>
           Register
-        </NavLink>
+        </Link>
       </li>
     </>
   );

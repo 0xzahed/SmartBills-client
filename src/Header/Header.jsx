@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 
@@ -51,7 +50,7 @@ const Header = () => {
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div className="grid md:grid-cols-2 items-center gap-10 px-6 md:px-16 py-10">
-              {/* Left Text Section */}
+              
               <Motion.div
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -74,7 +73,7 @@ const Header = () => {
                 </div>
               </Motion.div>
 
-              {/* Right Image Section */}
+              
               <Motion.div
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
