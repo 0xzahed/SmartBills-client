@@ -1,14 +1,36 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 import { CiUser } from "react-icons/ci";
 import { FiLogOut } from "react-icons/fi";
 import { AuthContext } from "../../Provider/AuthProvider";
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef(null);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleProfile = () => setIsProfileOpen(!isProfileOpen);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileOpen]);
 
   const { user, logOut } = useContext(AuthContext);
 
@@ -47,10 +69,20 @@ const Navbar = () => {
           Bills
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/about" className={navLinkStyle}>
+          About Us
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/contact" className={navLinkStyle}>
+          Contact Us
+        </NavLink>
+      </li>
 
       {user ? (
         <li>
-          <NavLink to="/my-pay-bills" className={navLinkStyle}>
+          <NavLink to="/mybills" className={navLinkStyle}>
             My Pay Bills
           </NavLink>
         </li>
@@ -72,8 +104,10 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border border-gray-800 shadow-md rounded-xl mx-auto max-w-7xl px-6 py-3 flex items-center justify-between">
-
+    <nav
+      className="sticky top-0 z-50 backdrop-blur-md border border-gray-800 shadow-md rounded-xl mx-auto max-w-7xl px-6 py-3 flex items-center justify-between"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+    >
       <Link
         to="/"
         className="text-2xl font-extrabold text-white tracking-tight hover:text-[#E5CBB8] transition-all duration-300"
@@ -82,11 +116,14 @@ const Navbar = () => {
       </Link>
       <div className="hidden md:flex items-center gap-8">
         <ul className="flex items-center gap-8">{links}</ul>
+
+        <ThemeToggle />
+
         {user ? (
           <>
-            {/* Profile Dropdown */}
-            <div className="relative group">
+            <div className="relative" ref={profileRef}>
               <button
+                onClick={toggleProfile}
                 className="flex items-center gap-2 text-white hover:text-[#E5CBB8] transition-colors duration-300"
                 title={user.displayName || "User Profile"}
               >
@@ -104,28 +141,34 @@ const Navbar = () => {
                 />
               </button>
 
-              <div className="absolute right-0 mt-2 w-40 bg-black/90 text-white border border-[#E5CBB8] rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
-                <ul className="p-2">
-                  <li>
-                    <Link
-                      to="/profile"
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-[#E5CBB8] hover:text-black rounded-md transition"
-                    >
-                      <CiUser className="w-4 h-4" />
-                      Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-red-600 hover:text-white rounded-md transition"
-                    >
-                      <FiLogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-black/90 text-white border border-[#E5CBB8] rounded-lg shadow-lg z-10">
+                  <ul className="p-2">
+                    <li>
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-[#E5CBB8] hover:text-black rounded-md transition"
+                      >
+                        <CiUser className="w-4 h-4" />
+                        Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-red-600 hover:text-white rounded-md transition"
+                      >
+                        <FiLogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </>
         ) : null}
@@ -150,6 +193,13 @@ const Navbar = () => {
             onClick={toggleMenu}
           >
             {links}
+
+            <li className="w-full">
+              <div className="text-white">
+                <ThemeToggle />
+              </div>
+            </li>
+
             {user && (
               <>
                 <li>

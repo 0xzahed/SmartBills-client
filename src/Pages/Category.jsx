@@ -34,17 +34,25 @@ const categories = [
 
 const Category = () => {
   return (
-    <section className="py-16 bg-gray-50" id="categories">
+    <section
+      className="py-16"
+      style={{ backgroundColor: "var(--bg-primary)" }}
+      id="categories"
+    >
       <div className="max-w-7xl mx-auto px-6 md:px-12 text-center">
         <motion.h2
           initial={{ opacity: 0, y: -30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl font-bold text-gray-900 mb-3"
+          className="text-3xl md:text-4xl font-bold mb-3"
+          style={{ color: "var(--text-primary)" }}
         >
           Manage Your Bills by Category
         </motion.h2>
-        <p className="text-gray-600 mb-10 max-w-2xl mx-auto">
+        <p
+          className="mb-10 max-w-2xl mx-auto"
+          style={{ color: "var(--text-secondary)" }}
+        >
           Choose a category below to explore and manage your specific utility
           bills easily.
         </p>
@@ -60,7 +68,7 @@ const Category = () => {
             >
               <Link
                 to={`/bills?category=${cat.title}`}
-                className="block bg-white shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-all duration-300 group"
+                className="card block shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-all duration-300 group"
               >
                 <div className="h-48 w-full overflow-hidden">
                   <img
@@ -70,11 +78,22 @@ const Category = () => {
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  <h3
+                    className="text-xl font-semibold mb-2"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {cat.title}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-3">{cat.desc}</p>
-                  <span className="inline-block text-sm font-medium text-[#252122] group-hover:underline">
+                  <p
+                    className="text-sm mb-3"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {cat.desc}
+                  </p>
+                  <span
+                    className="inline-block text-sm font-medium group-hover:underline"
+                    style={{ color: "var(--accent-primary)" }}
+                  >
                     View Bills →
                   </span>
                 </div>

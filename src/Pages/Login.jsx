@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,79 +22,141 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
+    toast.loading("Logging in...", { id: "login-process" });
+
     signIn(email, password)
       .then(() => {
-        toast.success("Login successful!", { duration: 4000 });
+        toast.success("Welcome back! Login successful!", {
+          id: "login-process",
+        });
         setLoading(false);
+
+        Swal.fire({
+          title: "Login Successful!",
+          text: "Welcome back to SmartBills!",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
         navigate(from, { replace: true });
       })
       .catch((error) => {
-        toast.error(error.message || "Login failed. Please try again.");
+        console.error("Login error:", error);
+        toast.error(
+          error.message || "Login failed. Please check your credentials.",
+          { id: "login-process" }
+        );
         setLoading(false);
+
+        Swal.fire({
+          title: "Login Failed!",
+          text: "Please check your email and password.",
+          icon: "error",
+          confirmButtonText: "Try Again",
+        });
       });
   };
 
   const handleGoogleSignIn = () => {
     setLoading(true);
+    toast.loading("Signing in with Google...", { id: "google-signin" });
+
     googleSignIn()
       .then(() => {
-        toast.success("Login successful!", { duration: 4000 });
+        toast.success("Google sign-in successful!", { id: "google-signin" });
         setLoading(false);
+
+        Swal.fire({
+          title: "Welcome!",
+          text: "Successfully signed in with Google!",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
         navigate(from, { replace: true });
       })
-      .catch(() => {
-        toast.error("Google sign-in failed. Please try again.");
+      .catch((error) => {
+        console.error("Google sign-in error:", error);
+        toast.error("Google sign-in failed. Please try again.", {
+          id: "google-signin",
+        });
         setLoading(false);
+
+        Swal.fire({
+          title: "Sign-in Failed!",
+          text: "Google sign-in was unsuccessful.",
+          icon: "error",
+          confirmButtonText: "Try Again",
+        });
       });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1e0d0d] relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-red-800/20 to-black opacity-90"></div>
-      <div className="absolute inset-0 grid grid-cols-12 gap-2 opacity-20">
-        {[...Array(150)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-red-600 rounded-lg aspect-square animate-pulse"
-            style={{
-              animationDelay: `${i * 0.05}s`,
-              opacity: Math.random() * 0.2,
-            }}
-          ></div>
-        ))}
-      </div>
-
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{ backgroundColor: "var(--bg-primary)" }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="relative z-10 bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl w-[90%] max-w-md p-8"
+        className="relative z-10 card shadow-2xl rounded-2xl w-[90%] max-w-md p-8"
       >
-        <h2 className="text-3xl font-bold text-center mb-2 text-gray-900">
+        <h2
+          className="text-3xl font-bold text-center mb-2"
+          style={{ color: "var(--text-primary)" }}
+        >
           Welcome Back
         </h2>
-        <p className="text-center text-gray-600 mb-6">
-          Login to your Utility Bill Management account
+        <p
+          className="text-center mb-6"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Sign in to access your SmartBills dashboard
         </p>
 
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="flex items-center justify-center gap-3 w-full border border-gray-300 rounded-lg py-3 hover:bg-gray-100 transition duration-300 disabled:opacity-60"
+          className="flex items-center justify-center gap-3 w-full border rounded-lg py-3 hover:opacity-90 transition duration-300 disabled:opacity-60"
+          style={{
+            borderColor: "var(--border-color)",
+            backgroundColor: "var(--bg-secondary)",
+          }}
         >
           <FcGoogle className="text-2xl" />
-          <span className="text-gray-700 font-medium">Continue with Google</span>
+          <span
+            className="font-medium"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Continue with Google
+          </span>
         </button>
 
         <div className="flex items-center gap-2 my-6">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-gray-500 text-sm">or</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "var(--border-color)" }}
+          ></div>
+          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            or
+          </span>
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "var(--border-color)" }}
+          ></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-1 font-medium">Email</label>
+            <label
+              className="block mb-1 font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -105,7 +168,12 @@ const Login = () => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1 font-medium">Password</label>
+            <label
+              className="block mb-1 font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -124,7 +192,10 @@ const Login = () => {
               </button>
             </div>
             <div className="flex justify-between items-center mt-2">
-              <label className="text-sm text-gray-600 flex items-center gap-2 cursor-pointer">
+              <label
+                className="text-sm flex items-center gap-2 cursor-pointer"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -148,15 +219,18 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            Don’t have an account?{" "}
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            Don't have an account?{" "}
             <a href="/register" className="text-blue-600 hover:underline">
               Register here
             </a>
           </p>
         </div>
 
-        <div className="mt-6 text-center text-xs text-gray-400">
+        <div
+          className="mt-6 text-center text-xs"
+          style={{ color: "var(--text-secondary)" }}
+        >
           © {new Date().getFullYear()} Utility Bill Management System
         </div>
       </motion.div>

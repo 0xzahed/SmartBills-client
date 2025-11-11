@@ -38,7 +38,7 @@ const Header = () => {
   ];
 
   return (
-    <div className="w-full bg-[#F9F5F3]">
+    <div className="w-full" style={{ backgroundColor: "var(--bg-primary)" }}>
       <Swiper
         modules={[Autoplay, Pagination]}
         spaceBetween={30}
@@ -50,30 +50,34 @@ const Header = () => {
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div className="grid md:grid-cols-2 items-center gap-10 px-6 md:px-16 py-10">
-              
               <Motion.div
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-left space-y-6"
               >
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
+                <h1
+                  className="text-3xl md:text-5xl font-bold leading-tight"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   {slide.title}
                 </h1>
-                <p className="text-gray-600 text-base md:text-lg">
+                <p
+                  className="text-base md:text-lg"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   {slide.desc}
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <button className="bg-black text-white px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-all duration-300">
+                  <button className="btn-primary px-6 py-3 rounded-md font-medium hover:opacity-90 transition-all duration-300">
                     {slide.btn1} →
                   </button>
-                  <button className="border border-black px-6 py-3 rounded-md font-medium hover:bg-black hover:text-white transition-all duration-300">
+                  <button className="btn-secondary px-6 py-3 rounded-md font-medium transition-all duration-300">
                     {slide.btn2}
                   </button>
                 </div>
               </Motion.div>
 
-              
               <Motion.div
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}

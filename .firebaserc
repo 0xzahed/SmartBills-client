@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "smartbills-0xzahe",
+    "smartbills": "smartbills-7b06f"
+  },
+  "targets": {},
+  "etags": {}
+}

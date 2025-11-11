@@ -5,7 +5,9 @@ import { Outlet } from 'react-router';
 const Auth = () => {
     return (
         <div>
-            <Navbar></Navbar>
+           <div className='p-5'>
+             <Navbar></Navbar>
+           </div>
             <Outlet></Outlet>
         </div>
     );
