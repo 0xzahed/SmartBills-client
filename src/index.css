@@ -1,9 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
 @import "tailwindcss";
 @plugin "daisyui";
 
-
 * {
   font-family: "Playfair Display", serif;
-  /* background-color: #F9F5F3 */
+  
+}
+
+body {
+  background-color: #f9f5f3;
 }

@@ -1,9 +1,9 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 
-import manageUtility from "../assets/images/manage-utility-easily.jpg";
-import paySecurely from "../assets/images/Pay Securely & Instantly.jpg";
-import monthlyExpenses from "../assets/images/Monthly Expenses, Organize.jpg";
+import manageUtility from "../../assets/images/manage-utility-easily.jpg";
+import paySecurely from "../../assets/images/Pay Securely & Instantly.jpg";
+import monthlyExpenses from "../../assets/images/Monthly Expenses, Organize.jpg";
 
 import "swiper/css";
 import "swiper/css/pagination";

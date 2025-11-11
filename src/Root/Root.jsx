@@ -5,7 +5,9 @@ import Navbar from "../Components/Navbar/Navbar";
 const Root = () => {
   return (
     <div>
-      <Navbar></Navbar>
+      <div className="p-4"> 
+        <Navbar></Navbar>
+      </div>
       <Outlet></Outlet>
     </div>
   );

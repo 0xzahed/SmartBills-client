@@ -1,8 +1,7 @@
 import React from 'react';
-import Navbar from '../../Components/Navbar/Navbar';
-import Header from '../../Header/Header';
-import Category from '../Category/Category';
-import RecentBills from '../RecentBills/RecentBills';
+import Header from '../Components/Header/Header';
+import Category from './Category';
+import RecentBills from './RecentBills';
 
 const Home = () => {
     return (

@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import electricity from "../../assets/images/Electricity.jpg";
-import gas from "../../assets/images/Gas.jpg";
-import water from "../../assets/images/Water.jpg";
-import internet from "../../assets/images/Internet.jpg";
+import electricity from "../assets/images/Electricity.jpg";
+import gas from "../assets/images/Gas.jpg";
+import water from "../assets/images/Water.jpg";
+import internet from "../assets/images/Internet.jpg";
 
 const categories = [
   {
