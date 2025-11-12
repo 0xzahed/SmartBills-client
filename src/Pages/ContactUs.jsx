@@ -23,7 +23,7 @@ const contactData = {
         />
       ),
       title: "Phone",
-      info: "+880 1234-567890",
+      info: "+880 1744546898",
       description: "Mon-Fri from 9am to 6pm",
     },
     {
@@ -129,16 +129,16 @@ const ContactUs = () => {
       }}
     >
       <section
-        className="py-20"
+        className="py-12 sm:py-16 md:py-20"
         style={{ backgroundColor: "var(--bg-secondary)" }}
       >
-        <div className="max-w-6xl mx-auto px-6 text-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
           <motion.h1
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6"
             style={{ color: "var(--text-primary)" }}
           >
             Contact <span className="text-[#E5CBB8]">Us</span>
@@ -148,7 +148,7 @@ const ContactUs = () => {
             initial="hidden"
             animate="visible"
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed"
             style={{ color: "var(--text-secondary)" }}
           >
             {hero.subtitle}
@@ -156,9 +156,9 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-12 sm:py-14 md:py-16">
         <motion.div
-          className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
+          className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-12 sm:mb-14 md:mb-16"
           variants={fadeInUp}
           initial="hidden"
           whileInView="visible"
@@ -168,26 +168,31 @@ const ContactUs = () => {
           {infoCards.map((item, index) => (
             <div
               key={index}
-              className="text-center p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300"
+              className="text-center p-4 sm:p-5 md:p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300"
               style={{
                 backgroundColor: "var(--card-bg)",
                 border: "1px solid var(--border-color)",
               }}
             >
-              <div className="flex justify-center mb-4">{item.icon}</div>
+              <div className="flex justify-center mb-3 sm:mb-4">
+                {item.icon}
+              </div>
               <h3
-                className="text-xl font-semibold mb-2"
+                className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2"
                 style={{ color: "var(--text-primary)" }}
               >
                 {item.title}
               </h3>
               <p
-                className="font-medium mb-1"
+                className="font-medium mb-1 text-sm sm:text-base"
                 style={{ color: "var(--text-primary)" }}
               >
                 {item.info}
               </p>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              <p
+                className="text-xs sm:text-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 {item.description}
               </p>
             </div>
@@ -196,7 +201,7 @@ const ContactUs = () => {
       </section>
 
       <motion.section
-        className="py-16"
+        className="py-12 sm:py-14 md:py-16"
         style={{ backgroundColor: "var(--bg-secondary)" }}
         variants={fadeInUp}
         initial="hidden"
@@ -204,20 +209,20 @@ const ContactUs = () => {
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
           <div>
             <h2
-              className="text-3xl font-bold mb-8"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8"
               style={{ color: "var(--text-primary)" }}
             >
               Send us a <span className="text-[#E5CBB8]">Message</span>
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label
-                    className="block text-sm font-medium mb-2"
+                    className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
                     style={{ color: "var(--text-primary)" }}
                   >
                     Full Name *
@@ -227,7 +232,7 @@ const ContactUs = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
                     style={{
                       backgroundColor: "var(--card-bg)",
                       border: "1px solid var(--border-color)",
@@ -238,7 +243,7 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <label
-                    className="block text-sm font-medium mb-2"
+                    className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
                     style={{ color: "var(--text-primary)" }}
                   >
                     Email Address *
@@ -248,7 +253,7 @@ const ContactUs = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
                     style={{
                       backgroundColor: "var(--card-bg)",
                       border: "1px solid var(--border-color)",
@@ -261,7 +266,7 @@ const ContactUs = () => {
 
               <div>
                 <label
-                  className="block text-sm font-medium mb-2"
+                  className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
                   style={{ color: "var(--text-primary)" }}
                 >
                   Subject *
@@ -271,7 +276,7 @@ const ContactUs = () => {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
                   style={{
                     backgroundColor: "var(--card-bg)",
                     border: "1px solid var(--border-color)",
@@ -283,7 +288,7 @@ const ContactUs = () => {
 
               <div>
                 <label
-                  className="block text-sm font-medium mb-2"
+                  className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
                   style={{ color: "var(--text-primary)" }}
                 >
                   Message *
@@ -293,7 +298,7 @@ const ContactUs = () => {
                   rows="6"
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-[#E5CBB8]"
                   style={{
                     backgroundColor: "var(--card-bg)",
                     border: "1px solid var(--border-color)",
@@ -305,7 +310,7 @@ const ContactUs = () => {
 
               <button
                 type="submit"
-                className="w-full bg-[#E5CBB8] hover:bg-[#d4b89e] text-black font-semibold py-3 rounded-lg transition duration-300 transform hover:scale-105"
+                className="w-full bg-[#E5CBB8] hover:bg-[#d4b89e] text-black font-semibold py-2.5 sm:py-3 text-sm sm:text-base rounded-lg transition duration-300 transform hover:scale-105"
               >
                 Send Message
               </button>
@@ -314,30 +319,30 @@ const ContactUs = () => {
 
           <div>
             <h2
-              className="text-3xl font-bold mb-8"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8"
               style={{ color: "var(--text-primary)" }}
             >
               Frequently Asked <span className="text-[#E5CBB8]">Questions</span>
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {faq.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                  className="p-4 sm:p-5 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                   style={{
                     backgroundColor: "var(--card-bg)",
                     border: "1px solid var(--border-color)",
                   }}
                 >
                   <h3
-                    className="font-semibold mb-2"
+                    className="text-base sm:text-lg font-semibold mb-1 sm:mb-2"
                     style={{ color: "var(--text-primary)" }}
                   >
                     {item.question}
                   </h3>
                   <p
-                    className="text-sm"
+                    className="text-xs sm:text-sm"
                     style={{ color: "var(--text-secondary)" }}
                   >
                     {item.answer}

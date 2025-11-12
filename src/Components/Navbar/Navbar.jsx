@@ -72,7 +72,7 @@ const Navbar = () => {
   };
 
   const navLinkStyle = ({ isActive }) =>
-    `relative px-4 py-2 text-[15px] font-medium tracking-wide transition-all duration-300 
+    `relative px-2 sm:px-3 md:px-4 py-2 text-sm sm:text-[15px] font-medium tracking-wide transition-all duration-300 
      ${
        isActive
          ? "text-[#E5CBB8] after:w-full"
@@ -82,7 +82,7 @@ const Navbar = () => {
      hover:after:w-full after:w-0`;
 
   const registerLinkStyle = ({ isActive }) =>
-    `relative px-5 py-2 font-semibold rounded-md border transition-all duration-300 ${
+    `relative px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 text-sm sm:text-base font-semibold rounded-md border transition-all duration-300 ${
       isActive
         ? "border-[#E5CBB8] bg-[#E5CBB8] text-black"
         : "border-[#E5CBB8] text-[#E5CBB8] hover:bg-[#E5CBB8] hover:text-black"
@@ -136,17 +136,17 @@ const Navbar = () => {
 
   return (
     <nav
-      className="sticky top-0 z-50 backdrop-blur-md border border-gray-800 shadow-md rounded-xl mx-auto max-w-7xl px-6 py-3 flex items-center justify-between"
+      className="sticky top-0 z-50 backdrop-blur-md border border-gray-800 shadow-md rounded-xl mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 flex items-center justify-between"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
     >
       <Link
         to="/"
-        className="text-2xl font-extrabold text-white tracking-tight hover:text-[#E5CBB8] transition-all duration-300"
+        className="text-xl sm:text-2xl font-extrabold text-white tracking-tight hover:text-[#E5CBB8] transition-all duration-300"
       >
         Smart<span className="text-[#E5CBB8]">Bills</span>
       </Link>
-      <div className="hidden md:flex items-center gap-8">
-        <ul className="flex items-center gap-8">{links}</ul>
+      <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+        <ul className="flex items-center gap-6 xl:gap-8">{links}</ul>
 
         <ThemeToggle />
 
@@ -173,13 +173,13 @@ const Navbar = () => {
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-black/90 text-white border border-[#E5CBB8] rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 mt-2 w-36 sm:w-40 bg-black/90 text-white border border-[#E5CBB8] rounded-lg shadow-lg z-10">
                   <ul className="p-2">
                     <li>
                       <Link
                         to="/profile"
                         onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 hover:bg-[#E5CBB8] hover:text-black rounded-md transition"
+                        className="flex items-center gap-2 px-2 sm:px-3 py-2 text-sm hover:bg-[#E5CBB8] hover:text-black rounded-md transition"
                       >
                         <CiUser className="w-4 h-4" />
                         Profile
@@ -191,7 +191,7 @@ const Navbar = () => {
                           handleLogout();
                           setIsProfileOpen(false);
                         }}
-                        className="flex items-center gap-2 w-full text-left px-3 py-2 hover:bg-red-600 hover:text-white rounded-md transition"
+                        className="flex items-center gap-2 w-full text-left px-2 sm:px-3 py-2 text-sm hover:bg-red-600 hover:text-white rounded-md transition"
                       >
                         <FiLogOut className="w-4 h-4" />
                         Logout
@@ -207,20 +207,20 @@ const Navbar = () => {
 
       <button
         onClick={toggleMenu}
-        className="md:hidden text-white hover:text-[#E5CBB8] transition-colors duration-300"
+        className="lg:hidden text-white hover:text-[#E5CBB8] transition-colors duration-300"
         aria-label="Toggle menu"
       >
         {isMenuOpen ? (
-          <FiX className="h-6 w-6" />
+          <FiX className="h-5 w-5 sm:h-6 sm:w-6" />
         ) : (
-          <FiMenu className="h-6 w-6" />
+          <FiMenu className="h-5 w-5 sm:h-6 sm:w-6" />
         )}
       </button>
 
       {isMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-md border-t border-gray-800 md:hidden">
+        <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-md border-t border-gray-800 lg:hidden">
           <ul
-            className="flex flex-col items-start px-6 py-4 space-y-3"
+            className="flex flex-col items-start px-4 sm:px-6 py-3 sm:py-4 space-y-2 sm:space-y-3"
             onClick={toggleMenu}
           >
             {links}
@@ -236,17 +236,17 @@ const Navbar = () => {
                 <li>
                   <Link
                     to="/profile"
-                    className="flex items-center gap-2 text-white hover:text-[#E5CBB8] transition"
+                    className="flex items-center gap-2 text-sm sm:text-base text-white hover:text-[#E5CBB8] transition"
                   >
-                    <CiUser /> Profile
+                    <CiUser className="w-4 h-4 sm:w-5 sm:h-5" /> Profile
                   </Link>
                 </li>
                 <li>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-white hover:text-red-500 transition"
+                    className="flex items-center gap-2 text-sm sm:text-base text-white hover:text-red-500 transition"
                   >
-                    <FiLogOut /> Logout
+                    <FiLogOut className="w-4 h-4 sm:w-5 sm:h-5" /> Logout
                   </button>
                 </li>
               </>

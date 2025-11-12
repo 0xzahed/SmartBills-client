@@ -12,9 +12,11 @@ const BillDetails = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    axios.get(`https://smart-bills-server.vercel.app/bills/${id}`).then((res) => {
-      setBill(res.data);
-    });
+    axios
+      .get(`https://smart-bills-server.vercel.app/bills/${id}`)
+      .then((res) => {
+        setBill(res.data);
+      });
   }, [id]);
 
   if (!bill)
@@ -44,7 +46,10 @@ const BillDetails = () => {
 
     try {
       toast.loading("Processing payment...", { id: "payment-process" });
-      await axios.post("https://smart-bills-server.vercel.app/mybills", paymentInfo);
+      await axios.post(
+        "https://smart-bills-server.vercel.app/mybills",
+        paymentInfo
+      );
 
       toast.success("Bill payment successful!", { id: "payment-process" });
       setShowModal(false);
@@ -73,26 +78,34 @@ const BillDetails = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+    <div className="max-w-3xl mx-auto mt-6 sm:mt-8 md:mt-10 p-4 sm:p-5 md:p-6 bg-white rounded-xl shadow-lg">
       <img
         src={bill.image}
         alt={bill.title}
-        className="w-full h-64 object-cover rounded-md"
+        className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-md"
       />
-      <h2 className="text-2xl font-bold mt-4">{bill.title}</h2>
-      <p className="text-gray-600">Category: {bill.category}</p>
-      <p className="text-gray-600">Location: {bill.location}</p>
-      <p className="text-gray-700 mt-2">{bill.description}</p>
-      <p className="text-lg font-semibold mt-3 text-gray-900">
+      <h2 className="text-xl sm:text-2xl font-bold mt-3 sm:mt-4">
+        {bill.title}
+      </h2>
+      <p className="text-sm sm:text-base text-gray-600">
+        Category: {bill.category}
+      </p>
+      <p className="text-sm sm:text-base text-gray-600">
+        Location: {bill.location}
+      </p>
+      <p className="text-sm sm:text-base text-gray-700 mt-2">
+        {bill.description}
+      </p>
+      <p className="text-base sm:text-lg font-semibold mt-2 sm:mt-3 text-gray-900">
         Amount: ৳{bill.amount}
       </p>
-      <p className="text-gray-500">Date: {bill.date}</p>
+      <p className="text-sm sm:text-base text-gray-500">Date: {bill.date}</p>
 
-      <div className="mt-6">
+      <div className="mt-4 sm:mt-5 md:mt-6">
         <button
           onClick={() => setShowModal(true)}
           disabled={!isPayable}
-          className={`px-5 py-2 rounded-lg text-white font-medium transition duration-300 ${
+          className={`px-4 sm:px-5 py-2 text-sm sm:text-base rounded-lg text-white font-medium transition duration-300 ${
             isPayable
               ? "bg-green-600 hover:bg-green-700"
               : "bg-gray-400 cursor-not-allowed"
@@ -103,102 +116,120 @@ const BillDetails = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-          <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 px-4">
+          <div className="bg-white w-full max-w-md p-4 sm:p-5 md:p-6 rounded-lg shadow-lg relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              className="absolute top-2 right-2 text-gray-500 hover:text-black text-xl sm:text-2xl"
             >
               ✕
             </button>
-            <h2 className="text-xl font-bold mb-4 text-center">Pay Bill</h2>
+            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-center">
+              Pay Bill
+            </h2>
 
-            <form onSubmit={handlePayBill} className="space-y-4">
+            <form onSubmit={handlePayBill} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-gray-700">Email</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Email
+                </label>
                 <input
                   type="email"
                   value={user?.email || ""}
                   readOnly
-                  className="w-full border p-2 rounded bg-gray-100"
+                  className="w-full border p-2 text-sm sm:text-base rounded bg-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Bill ID</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Bill ID
+                </label>
                 <input
                   type="text"
                   value={bill._id}
                   readOnly
-                  className="w-full border p-2 rounded bg-gray-100"
+                  className="w-full border p-2 text-sm sm:text-base rounded bg-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Amount</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Amount
+                </label>
                 <input
                   type="text"
                   value={bill.amount}
                   readOnly
-                  className="w-full border p-2 rounded bg-gray-100"
+                  className="w-full border p-2 text-sm sm:text-base rounded bg-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Username</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Username
+                </label>
                 <input
                   type="text"
                   name="username"
                   required
                   placeholder="Enter your name"
-                  className="w-full border p-2 rounded"
+                  className="w-full border p-2 text-sm sm:text-base rounded"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Address</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Address
+                </label>
                 <input
                   type="text"
                   name="address"
                   required
                   placeholder="Enter your address"
-                  className="w-full border p-2 rounded"
+                  className="w-full border p-2 text-sm sm:text-base rounded"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Phone</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Phone
+                </label>
                 <input
                   type="text"
                   name="phone"
                   required
                   placeholder="Enter your phone number"
-                  className="w-full border p-2 rounded"
+                  className="w-full border p-2 text-sm sm:text-base rounded"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Date</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Date
+                </label>
                 <input
                   type="text"
                   value={new Date().toISOString().split("T")[0]}
                   readOnly
-                  className="w-full border p-2 rounded bg-gray-100"
+                  className="w-full border p-2 text-sm sm:text-base rounded bg-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700">Additional Info</label>
+                <label className="block text-sm sm:text-base text-gray-700">
+                  Additional Info
+                </label>
                 <textarea
                   name="info"
                   placeholder="(Optional)"
-                  className="w-full border p-2 rounded"
+                  className="w-full border p-2 text-sm sm:text-base rounded"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium transition"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-2 text-sm sm:text-base rounded font-medium transition"
               >
                 Confirm Payment
               </button>

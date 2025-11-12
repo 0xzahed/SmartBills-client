@@ -197,30 +197,30 @@ const MyBills = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 p-6 card rounded-xl shadow-md">
+    <div className="max-w-6xl mx-auto mt-6 sm:mt-8 md:mt-10 p-4 sm:p-5 md:p-6 card rounded-xl shadow-md">
       <h2
-        className="text-3xl font-bold text-center mb-4"
+        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-3 sm:mb-4 md:mb-6"
         style={{ color: "var(--text-primary)" }}
       >
         My Paid Bills
       </h2>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <p
-          className="text-lg font-semibold"
+          className="text-sm sm:text-base md:text-lg font-semibold"
           style={{ color: "var(--text-primary)" }}
         >
           Total Bills Paid: <span className="text-blue-600">{totalBills}</span>
         </p>
         <p
-          className="text-lg font-semibold"
+          className="text-sm sm:text-base md:text-lg font-semibold"
           style={{ color: "var(--text-primary)" }}
         >
           Total Amount: <span className="text-green-600">৳{totalAmount}</span>
         </p>
         <button
           onClick={handleDownloadReport}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          className="w-full sm:w-auto px-3 sm:px-4 md:px-5 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
         >
           Download Report
         </button>
@@ -228,7 +228,7 @@ const MyBills = () => {
 
       <div className="overflow-x-auto">
         <table
-          className="table-auto w-full border text-sm"
+          className="table-auto w-full border text-xs sm:text-sm md:text-base"
           style={{ borderColor: "var(--border-color)" }}
         >
           <thead
@@ -239,43 +239,43 @@ const MyBills = () => {
           >
             <tr>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Username
               </th>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm hidden md:table-cell"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Email
               </th>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Amount
               </th>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm hidden lg:table-cell"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Address
               </th>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm hidden sm:table-cell"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Phone
               </th>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Date
               </th>
               <th
-                className="p-2 border"
+                className="p-1 sm:p-2 border text-xs sm:text-sm"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 Actions
@@ -292,25 +292,31 @@ const MyBills = () => {
                   color: "var(--text-primary)",
                 }}
               >
-                <td className="p-2">{b.username}</td>
-                <td className="p-2">{b.email}</td>
-                <td className="p-2">৳{b.amount}</td>
-                <td className="p-2">{b.address}</td>
-                <td className="p-2">{b.phone}</td>
-                <td className="p-2">{b.date}</td>
-                <td className="p-2 flex justify-center gap-2">
+                <td className="p-1 sm:p-2 text-xs sm:text-sm">{b.username}</td>
+                <td className="p-1 sm:p-2 text-xs sm:text-sm hidden md:table-cell">
+                  {b.email}
+                </td>
+                <td className="p-1 sm:p-2 text-xs sm:text-sm">৳{b.amount}</td>
+                <td className="p-1 sm:p-2 text-xs sm:text-sm hidden lg:table-cell">
+                  {b.address}
+                </td>
+                <td className="p-1 sm:p-2 text-xs sm:text-sm hidden sm:table-cell">
+                  {b.phone}
+                </td>
+                <td className="p-1 sm:p-2 text-xs sm:text-sm">{b.date}</td>
+                <td className="p-1 sm:p-2 flex flex-col sm:flex-row justify-center gap-1 sm:gap-2">
                   <button
                     onClick={() => {
                       setSelectedBill(b);
                       setShowModal(true);
                     }}
-                    className="px-3 py-1 bg-[#E5CBB8] text-black rounded-md hover:bg-[#E5CBB8]"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-[#E5CBB8] text-black rounded-md hover:bg-[#E5CBB8]"
                   >
                     Update
                   </button>
                   <button
                     onClick={() => handleDelete(b._id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
                   >
                     Delete
                   </button>
@@ -322,7 +328,7 @@ const MyBills = () => {
 
         {bills.length === 0 && (
           <p
-            className="text-center py-6"
+            className="text-center py-4 sm:py-6 text-sm sm:text-base"
             style={{ color: "var(--text-secondary)" }}
           >
             No bills found.
@@ -331,60 +337,64 @@ const MyBills = () => {
       </div>
 
       {showModal && selectedBill && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="card p-6 rounded-lg shadow-lg w-full max-w-md relative">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="card p-4 sm:p-5 md:p-6 rounded-lg shadow-lg w-full max-w-md relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-2 right-3 hover:opacity-75"
+              className="absolute top-2 right-3 text-xl sm:text-2xl hover:opacity-75"
               style={{ color: "var(--text-secondary)" }}
             >
               ✕
             </button>
             <h3
-              className="text-xl font-semibold mb-4"
+              className="text-lg sm:text-xl md:text-2xl font-semibold mb-3 sm:mb-4"
               style={{ color: "var(--text-primary)" }}
             >
               Update Bill
             </h3>
-            <form onSubmit={handleUpdate} className="space-y-3">
+            <form onSubmit={handleUpdate} className="space-y-2 sm:space-y-3">
               <input
                 type="text"
                 name="username"
                 defaultValue={selectedBill.username}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded text-sm sm:text-base"
+                placeholder="Username"
                 required
               />
               <input
                 type="text"
                 name="address"
                 defaultValue={selectedBill.address}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded text-sm sm:text-base"
+                placeholder="Address"
                 required
               />
               <input
                 type="text"
                 name="phone"
                 defaultValue={selectedBill.phone}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded text-sm sm:text-base"
+                placeholder="Phone"
                 required
               />
               <input
                 type="number"
                 name="amount"
                 defaultValue={selectedBill.amount}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded text-sm sm:text-base"
+                placeholder="Amount"
                 required
               />
               <input
                 type="date"
                 name="date"
                 defaultValue={selectedBill.date}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded text-sm sm:text-base"
                 required
               />
               <button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm sm:text-base"
               >
                 Save Changes
               </button>
