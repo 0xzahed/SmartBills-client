@@ -11,11 +11,13 @@ import MyBills from "../Pages/MyBills";
 import Profile from "../Pages/Profile";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
+import ErrorPage from "../Pages/ErrorPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "contact",
         Component: ContactUs,
+      },
+      {
+        path: "*",
+        Component: ErrorPage,
       },
       {
         path: "bills/:id",

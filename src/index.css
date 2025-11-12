@@ -3,25 +3,25 @@
 @plugin "daisyui";
 
 :root {
-  --bg-primary: #f9f5f3;
+  --bg-primary: #f8f9fa;
   --bg-secondary: #ffffff;
   --card-bg: #ffffff;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
   --accent-primary: #000000;
   --accent-secondary: #374151;
-  --border-color: #e5e7eb;
+  --border-color: #dee2e6;
 }
 
 [data-theme="dark"] {
-  --bg-primary: #000000;
-  --bg-secondary: #1f2937;
-  --card-bg: #1f2937;
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --card-bg: #1e1e1e;
+  --text-primary: #e9ecef;
+  --text-secondary: #adb5bd;
   --accent-primary: #ffffff;
   --accent-secondary: #9ca3af;
-  --border-color: #4b5563;
+  --border-color: #343a40;
 }
 
 * {

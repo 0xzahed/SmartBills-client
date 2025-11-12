@@ -30,7 +30,7 @@ const Bills = () => {
   if (loading) {
     return (
       <div className="text-center py-20 text-gray-600 font-semibold">
-        Loading bills...
+        <span className="loading loading-bars loading-xl"></span>
       </div>
     );
   }

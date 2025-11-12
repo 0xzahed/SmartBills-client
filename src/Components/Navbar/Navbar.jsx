@@ -6,6 +6,7 @@ import { FiLogOut } from "react-icons/fi";
 import { AuthContext } from "../../Provider/AuthProvider";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,9 +36,39 @@ const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
 
   const handleLogout = () => {
-    logOut()
-      .then(() => toast.success("Logged out successfully!"))
-      .catch(() => toast.error("Logout failed! Please try again."));
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, logout!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logOut()
+          .then(() => {
+            toast.success("Logged out successfully!");
+            Swal.fire({
+              title: "Logged Out!",
+              text: "You have been logged out successfully.",
+              icon: "success",
+              timer: 2000,
+              showConfirmButton: false,
+            });
+          })
+          .catch(() => {
+            toast.error("Logout failed! Please try again.");
+            Swal.fire({
+              title: "Error!",
+              text: "Logout failed. Please try again.",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          });
+      }
+    });
   };
 
   const navLinkStyle = ({ isActive }) =>

@@ -22,13 +22,10 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    toast.loading("Logging in...", { id: "login-process" });
 
     signIn(email, password)
       .then(() => {
-        toast.success("Welcome back! Login successful!", {
-          id: "login-process",
-        });
+        toast.success("Welcome back! Login successful!");
         setLoading(false);
 
         Swal.fire({
@@ -43,15 +40,24 @@ const Login = () => {
       })
       .catch((error) => {
         console.error("Login error:", error);
-        toast.error(
-          error.message || "Login failed. Please check your credentials.",
-          { id: "login-process" }
-        );
         setLoading(false);
+
+        let errorMessage = "Login failed. Please try again.";
+        if (error.code === "auth/user-not-found") {
+          errorMessage = "No account found with this email.";
+        } else if (error.code === "auth/wrong-password") {
+          errorMessage = "Incorrect password. Please try again.";
+        } else if (error.code === "auth/invalid-email") {
+          errorMessage = "Invalid email address.";
+        } else if (error.code === "auth/invalid-credential") {
+          errorMessage = "Invalid email or password.";
+        }
+
+        toast.error(errorMessage);
 
         Swal.fire({
           title: "Login Failed!",
-          text: "Please check your email and password.",
+          text: errorMessage,
           icon: "error",
           confirmButtonText: "Try Again",
         });
@@ -60,11 +66,10 @@ const Login = () => {
 
   const handleGoogleSignIn = () => {
     setLoading(true);
-    toast.loading("Signing in with Google...", { id: "google-signin" });
 
     googleSignIn()
       .then(() => {
-        toast.success("Google sign-in successful!", { id: "google-signin" });
+        toast.success("Google sign-in successful!");
         setLoading(false);
 
         Swal.fire({
@@ -79,14 +84,20 @@ const Login = () => {
       })
       .catch((error) => {
         console.error("Google sign-in error:", error);
-        toast.error("Google sign-in failed. Please try again.", {
-          id: "google-signin",
-        });
         setLoading(false);
+
+        let errorMessage = "Google sign-in failed. Please try again.";
+        if (error.code === "auth/popup-closed-by-user") {
+          errorMessage = "Sign-in popup was closed. Please try again.";
+        } else if (error.code === "auth/cancelled-popup-request") {
+          errorMessage = "Sign-in was cancelled.";
+        }
+
+        toast.error(errorMessage);
 
         Swal.fire({
           title: "Sign-in Failed!",
-          text: "Google sign-in was unsuccessful.",
+          text: errorMessage,
           icon: "error",
           confirmButtonText: "Try Again",
         });

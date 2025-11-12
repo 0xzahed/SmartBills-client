@@ -1,4 +1,3 @@
-// src/pages/Auth/Register.jsx
 import { useState, useContext } from "react";
 import { AuthContext } from "../Provider/AuthProvider";
 import { useNavigate } from "react-router-dom";
@@ -33,11 +32,16 @@ const Register = () => {
     const error = validatePassword(password);
     if (error) {
       toast.error(error);
+      Swal.fire({
+        title: "Invalid Password!",
+        text: error,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
       return;
     }
 
     setLoading(true);
-    toast.loading("Creating your account...", { id: "register-process" });
 
     createUser(email, password)
       .then((userCredential) => {
@@ -47,9 +51,7 @@ const Register = () => {
         }
       })
       .then(() => {
-        toast.success("Account created successfully!", {
-          id: "register-process",
-        });
+        toast.success("Account created successfully!");
         setLoading(false);
 
         Swal.fire({
@@ -64,14 +66,24 @@ const Register = () => {
       })
       .catch((err) => {
         console.error("Registration error:", err);
-        toast.error(err.message || "Registration failed. Please try again.", {
-          id: "register-process",
-        });
         setLoading(false);
+
+        let errorMessage = "Registration failed. Please try again.";
+        if (err.code === "auth/email-already-in-use") {
+          errorMessage =
+            "This email is already registered. Please login instead.";
+        } else if (err.code === "auth/invalid-email") {
+          errorMessage = "Invalid email address.";
+        } else if (err.code === "auth/weak-password") {
+          errorMessage =
+            "Password is too weak. Please use a stronger password.";
+        }
+
+        toast.error(errorMessage);
 
         Swal.fire({
           title: "Registration Failed!",
-          text: "Please check your information and try again.",
+          text: errorMessage,
           icon: "error",
           confirmButtonText: "Try Again",
         });
@@ -80,13 +92,10 @@ const Register = () => {
 
   const handleGoogleSignIn = () => {
     setLoading(true);
-    toast.loading("Creating account with Google...", { id: "google-register" });
 
     googleSignIn()
       .then(() => {
-        toast.success("Account created successfully!", {
-          id: "google-register",
-        });
+        toast.success("Account created successfully!");
         setLoading(false);
 
         Swal.fire({
@@ -101,14 +110,24 @@ const Register = () => {
       })
       .catch((err) => {
         console.error("Google registration error:", err);
-        toast.error(err.message || "Google registration failed.", {
-          id: "google-register",
-        });
         setLoading(false);
+
+        let errorMessage = "Google registration failed. Please try again.";
+        if (err.code === "auth/popup-closed-by-user") {
+          errorMessage = "Registration popup was closed. Please try again.";
+        } else if (err.code === "auth/cancelled-popup-request") {
+          errorMessage = "Registration was cancelled.";
+        } else if (
+          err.code === "auth/account-exists-with-different-credential"
+        ) {
+          errorMessage = "An account already exists with this email.";
+        }
+
+        toast.error(errorMessage);
 
         Swal.fire({
           title: "Registration Failed!",
-          text: "Google registration was unsuccessful.",
+          text: errorMessage,
           icon: "error",
           confirmButtonText: "Try Again",
         });
@@ -257,7 +276,7 @@ const Register = () => {
           </span>
         </button>
 
-        {/* Footer */}
+
         <div className="mt-6 text-center">
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             Already have an account?{" "}

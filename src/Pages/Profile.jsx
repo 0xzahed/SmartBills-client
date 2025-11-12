@@ -116,7 +116,6 @@ const Profile = () => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Profile Picture */}
             <div className="flex flex-col items-center">
               <div className="relative">
                 <img
