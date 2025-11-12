@@ -1,8 +1,5 @@
 # SmartBills - Utility Bill Management System
 
-[![Live Demo](https://smartbills-7b06f.web.app)
-[![Netlify Status](https://smartbills-0xzahed.netlify.app)
-
 ## Overview
 
 **SmartBills** is a modern, user-friendly utility bill management system that allows users to view, pay, and manage their electricity, gas, water, and internet bills all in one place. Built with React and powered by a robust backend, SmartBills provides a seamless experience for bill payment and tracking.
