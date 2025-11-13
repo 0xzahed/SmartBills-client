@@ -7,6 +7,7 @@ const Bills = () => {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchItem, setSearchItem] = useState("");
 
   useEffect(() => {
     const url =
@@ -51,11 +52,27 @@ const Bills = () => {
           All Utility Bills
         </motion.h2>
 
-        <div className="flex justify-center mb-6 sm:mb-8 md:mb-10">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-10">
+          <div className="flex w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Search bills..."
+              value={searchItem}
+              onChange={(e) => setSearchItem(e.target.value)}
+              className="border border-gray-300 rounded-l-md px-3 sm:px-4 py-2 text-sm sm:text-base bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 w-full sm:w-64"
+            />
+            <button
+              onClick={() => setSearchItem(searchItem)}
+              className="bg-black hover:bg-gray-800 text-white px-4 sm:px-6 py-2 rounded-r-md text-sm sm:text-base font-medium transition-colors"
+            >
+              Search
+            </button>
+          </div>
+
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 sm:px-4 py-2 text-sm sm:text-base bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-md px-3 sm:px-4 py-2 text-sm sm:text-base bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
           >
             <option value="All">All Categories</option>
             <option value="Electricity">Electricity</option>
@@ -74,56 +91,71 @@ const Bills = () => {
           </p>
         ) : (
           <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {bills.map((bill, index) => (
-              <motion.div
-                key={bill._id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="card rounded-xl sm:rounded-2xl shadow-md hover:shadow-lg overflow-hidden transition-all duration-300"
-              >
-                <img
-                  src={bill.image}
-                  alt={bill.title}
-                  className="w-full h-40 sm:h-44 md:h-48 object-cover"
-                />
-                <div className="p-4 sm:p-5 text-left">
-                  <h3
-                    className="text-lg sm:text-xl font-semibold mb-2"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {bill.title}
-                  </h3>
-                  <p
-                    className="text-xs sm:text-sm mb-1"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    <span className="font-medium">Category:</span>{" "}
-                    {bill.category}
-                  </p>
-                  <p
-                    className="text-xs sm:text-sm mb-1"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    <span className="font-medium">Location:</span>{" "}
-                    {bill.location}
-                  </p>
-                  <p
-                    className="text-xs sm:text-sm mb-3"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    <span className="font-medium">Amount:</span> ৳{bill.amount}
-                  </p>
+            {bills
+              .filter((bill) =>
+                searchItem === ""
+                  ? true
+                  : bill.title
+                      .toLowerCase()
+                      .includes(searchItem.toLowerCase()) ||
+                    bill.category
+                      .toLowerCase()
+                      .includes(searchItem.toLowerCase()) ||
+                    bill.location
+                      .toLowerCase()
+                      .includes(searchItem.toLowerCase())
+              )
+              .map((bill, index) => (
+                <motion.div
+                  key={bill._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="card rounded-xl sm:rounded-2xl shadow-md hover:shadow-lg overflow-hidden transition-all duration-300"
+                >
+                  <img
+                    src={bill.image}
+                    alt={bill.title}
+                    className="w-full h-40 sm:h-44 md:h-48 object-cover"
+                  />
+                  <div className="p-4 sm:p-5 text-left">
+                    <h3
+                      className="text-lg sm:text-xl font-semibold mb-2"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {bill.title}
+                    </h3>
+                    <p
+                      className="text-xs sm:text-sm mb-1"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <span className="font-medium">Category:</span>{" "}
+                      {bill.category}
+                    </p>
+                    <p
+                      className="text-xs sm:text-sm mb-1"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <span className="font-medium">Location:</span>{" "}
+                      {bill.location}
+                    </p>
+                    <p
+                      className="text-xs sm:text-sm mb-3"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <span className="font-medium">Amount:</span> ৳
+                      {bill.amount}
+                    </p>
 
-                  <Link
-                    to={`/bills/${bill._id}`}
-                    className="btn-primary inline-block text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-md hover:opacity-90 transition-all duration-300"
-                  >
-                    See Details →
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
+                    <Link
+                      to={`/bills/${bill._id}`}
+                      className="btn-primary inline-block text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-md hover:opacity-90 transition-all duration-300"
+                    >
+                      See Details →
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
           </div>
         )}
       </div>
