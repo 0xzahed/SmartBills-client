@@ -99,6 +99,29 @@ VITE_MESSAGINGSENDERID=your_firebase_messaging_sender_id
 VITE_APPID=your_firebase_app_id
 ```
 
+### Server Environment (`server/.env`)
+
+The backend reads its own `.env` file inside the `server/` folder. Add the MongoDB, Groq, and SMTP settings so invoice emails can be delivered when a payment succeeds:
+
+```env
+PORT=3001
+DB_USER=your_db_user
+DB_PASS=your_db_password
+DB_CLUSTER=your_cluster.mongodb.net
+DB_NAME=BillManagementDB
+GROQ_API_KEY=your_groq_key
+GROQ_MODEL=llama-3.3-70b-versatile
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS="app-specific-password"
+SMTP_FROM="SmartBills <no-reply@smartbills.com>"
+```
+
+- `SMTP_*` values enable Nodemailer to send invoice receipts.
+- Gmail accounts require an [app password](https://support.google.com/accounts/answer/185833) when two-factor authentication is on.
+- Restart the server after updating this file so the new credentials load.
+
 ## 🌐 Deployment
 
 ### Firebase Hosting

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { API_BASE_URL } from "../config";
 
 const RecentBills = () => {
   const [bills, setBills] = useState([]);
@@ -9,7 +10,7 @@ const RecentBills = () => {
 
   useEffect(() => {
     axios
-      .get("https://smart-bills-server.vercel.app/bills/recent")
+      .get(`${API_BASE_URL}/recent-bills`)
       .then((res) => {
         setBills(res.data);
         setLoading(false);

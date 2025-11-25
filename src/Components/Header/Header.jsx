@@ -38,7 +38,7 @@ const Header = () => {
   ];
 
   return (
-    <div className="w-full" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <div className="w-full max-w-7xl mx-auto" style={{ backgroundColor: "var(--bg-primary) " }}>
       <Swiper
         modules={[Autoplay, Pagination]}
         spaceBetween={30}

@@ -111,12 +111,25 @@ const Navbar = () => {
         </NavLink>
       </li>
 
+      <li>
+        <NavLink to="/providers" className={navLinkStyle}>
+          Providers
+        </NavLink>
+      </li>
+
       {user ? (
-        <li>
-          <NavLink to="/mybills" className={navLinkStyle}>
-            My Pay Bills
-          </NavLink>
-        </li>
+        <>
+          <li>
+            <NavLink to="/insights" className={navLinkStyle}>
+              Insights
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/mybills" className={navLinkStyle}>
+              My Pay Bills
+            </NavLink>
+          </li>
+        </>
       ) : (
         <>
           <li>

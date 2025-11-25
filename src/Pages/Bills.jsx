@@ -1,163 +1,292 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { AuthContext } from "../Provider/AuthProvider";
+import { API_BASE_URL } from "../config";
+
+const MotionHeading = motion.h2;
 
 const Bills = () => {
-  const [bills, setBills] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchItem, setSearchItem] = useState("");
+  const { user } = useContext(AuthContext);
 
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [providerMap, setProviderMap] = useState({});
+  const [billsByType, setBillsByType] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // --------------------
+  // FORMAT helper
+  // --------------------
+  const formatStatus = (value) => {
+    if (!value) return "Subscribed";
+    const text = String(value);
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+  const normalizeKey = (value) => {
+    if (!value) return "";
+    return String(value).trim().toLowerCase();
+  };
+
+  // --------------------
+  // LOAD DATA
+  // --------------------
   useEffect(() => {
-    const url =
-      selectedCategory === "All"
-        ? "https://smart-bills-server.vercel.app/bills"
-        : `https://smart-bills-server.vercel.app/bills?category=${selectedCategory}`;
+    if (!user?.email) {
+      setSubscriptions([]);
+      setProviderMap({});
+      setBillsByType({});
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    let isMounted = true;
+
     setLoading(true);
 
-    axios
-      .get(url)
-      .then((res) => {
-        setBills(res.data);
-        setLoading(false);
+    Promise.all([
+      axios.get(`${API_BASE_URL}/subscriptions`, {
+        params: { email: user.email },
+        signal: controller.signal,
+      }),
+      axios.get(`${API_BASE_URL}/providers`, { signal: controller.signal }),
+      axios.get(`${API_BASE_URL}/bills`, { signal: controller.signal }),
+    ])
+      .then(([subsRes, providersRes, billsRes]) => {
+        if (!isMounted) return;
+
+        const subsData = subsRes.data || [];
+        const providersData = providersRes.data || [];
+        const billsData = billsRes.data || [];
+
+        // provider lookup map
+        const providerLookup = providersData.reduce((acc, p) => {
+          acc[p._id] = p;
+          return acc;
+        }, {});
+
+        // group bills by category/type
+        const grouped = billsData.reduce((acc, bill) => {
+          const key = normalizeKey(bill.category);
+          if (!key) return acc;
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(bill);
+          return acc;
+        }, {});
+
+        setSubscriptions(subsData);
+        setProviderMap(providerLookup);
+        setBillsByType(grouped);
       })
-      .catch((error) => {
-        console.error("Error fetching bills:", error);
-        setLoading(false);
+      .catch((err) => {
+        if (!isMounted) return;
+        console.error("Load error:", err);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
       });
-  }, [selectedCategory]);
 
-  if (loading) {
-    return (
-      <div className="text-center py-12 sm:py-16 md:py-20 text-gray-600 font-semibold">
-        <span className="loading loading-bars loading-lg sm:loading-xl"></span>
-      </div>
-    );
-  }
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [user]);
 
+  // --------------------
+  // MERGE subscription + provider + bills
+  // --------------------
+  const subscriptionsWithDetails = useMemo(() => {
+    if (!subscriptions.length) return [];
+
+    return subscriptions.map((sub) => {
+      const provider = providerMap[sub.providerId] || {};
+      const typeLabel = sub.type || provider.type || "general";
+      const normalized = normalizeKey(typeLabel);
+
+      return {
+        ...sub,
+        provider,
+        providerName: sub.providerName || provider.name || "Unknown Provider",
+        type: typeLabel,
+        normalizedType: normalized,
+        bills: billsByType[normalized] || [],
+        statusLabel: formatStatus(sub.status),
+      };
+    });
+  }, [subscriptions, providerMap, billsByType]);
+
+  // --------------------
+  // RENDER
+  // --------------------
   return (
     <section
       className="py-10 sm:py-12 md:py-16 min-h-screen"
       style={{ backgroundColor: "var(--bg-primary)" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-        <motion.h2
-          initial={{ opacity: 0, y: -30 }}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8">
+        <MotionHeading
+          initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 md:mb-10"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8"
           style={{ color: "var(--text-primary)" }}
         >
-          All Utility Bills
-        </motion.h2>
+          My Provider Subscriptions
+        </MotionHeading>
 
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-10">
-          <div className="flex w-full sm:w-auto">
-            <input
-              type="text"
-              placeholder="Search bills..."
-              value={searchItem}
-              onChange={(e) => setSearchItem(e.target.value)}
-              className="border border-gray-300 rounded-l-md px-3 sm:px-4 py-2 text-sm sm:text-base bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 w-full sm:w-64"
-            />
-            <button
-              onClick={() => setSearchItem(searchItem)}
-              className="bg-black hover:bg-gray-800 text-white px-4 sm:px-6 py-2 rounded-r-md text-sm sm:text-base font-medium transition-colors"
+        {/* Card */}
+        <div
+          className="rounded-xl border border-gray-800/20 p-6 sm:p-7"
+          style={{ backgroundColor: "var(--card-bg)" }}
+        >
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+              <h3
+                className="text-lg sm:text-xl font-semibold"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Stay organized with your subscribed services
+              </h3>
+              <p
+                className="text-xs sm:text-sm"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Your subscribed providers and related bills will appear here.
+              </p>
+            </div>
+            <Link
+              to="/providers"
+              className="px-3 py-1.5 text-sm font-medium rounded-md border border-[#E5CBB8] text-[#E5CBB8] hover:bg-[#E5CBB8] hover:text-black transition"
             >
-              Search
-            </button>
+              Browse Providers
+            </Link>
           </div>
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 sm:px-4 py-2 text-sm sm:text-base bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-          >
-            <option value="All">All Categories</option>
-            <option value="Electricity">Electricity</option>
-            <option value="Gas">Gas</option>
-            <option value="Water">Water</option>
-            <option value="Internet">Internet</option>
-          </select>
-        </div>
+          {/* Loader */}
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <span className="loading loading-bars loading-md"></span>
+            </div>
+          ) : subscriptionsWithDetails.length === 0 ? (
+            <p
+              className="mt-6 text-center text-sm sm:text-base"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              You have not subscribed to any providers yet.
+            </p>
+          ) : (
+            <div className="mt-6 grid gap-5 grid-cols-1 sm:grid-cols-2">
+              {subscriptionsWithDetails.map((sub) => {
+                const provider = sub.provider;
+                const bills = sub.bills;
+                const primaryBill = bills[0];
+                const extraCount = bills.length - 1;
 
-        {bills.length === 0 ? (
-          <p
-            className="text-center text-sm sm:text-base font-medium"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            No bills found for this category.
-          </p>
-        ) : (
-          <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {bills
-              .filter((bill) =>
-                searchItem === ""
-                  ? true
-                  : bill.title
-                      .toLowerCase()
-                      .includes(searchItem.toLowerCase()) ||
-                    bill.category
-                      .toLowerCase()
-                      .includes(searchItem.toLowerCase()) ||
-                    bill.location
-                      .toLowerCase()
-                      .includes(searchItem.toLowerCase())
-              )
-              .map((bill, index) => (
-                <motion.div
-                  key={bill._id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="card rounded-xl sm:rounded-2xl shadow-md hover:shadow-lg overflow-hidden transition-all duration-300"
-                >
-                  <img
-                    src={bill.image}
-                    alt={bill.title}
-                    className="w-full h-40 sm:h-44 md:h-48 object-cover"
-                  />
-                  <div className="p-4 sm:p-5 text-left">
-                    <h3
-                      className="text-lg sm:text-xl font-semibold mb-2"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      {bill.title}
-                    </h3>
-                    <p
-                      className="text-xs sm:text-sm mb-1"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <span className="font-medium">Category:</span>{" "}
-                      {bill.category}
-                    </p>
-                    <p
-                      className="text-xs sm:text-sm mb-1"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <span className="font-medium">Location:</span>{" "}
-                      {bill.location}
-                    </p>
-                    <p
-                      className="text-xs sm:text-sm mb-3"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <span className="font-medium">Amount:</span> ৳
-                      {bill.amount}
-                    </p>
+                const subscriptionDate = sub.subscribedAt
+                  ? new Date(sub.subscribedAt).toLocaleDateString()
+                  : "Recently";
 
+                // SELECT Detail Button
+                let detailButton = null;
+
+                if (primaryBill) {
+                  detailButton = (
                     <Link
-                      to={`/bills/${bill._id}`}
-                      className="btn-primary inline-block text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-md hover:opacity-90 transition-all duration-300"
+                      to={`/bills/${primaryBill._id}`}
+                      state={{ bill: primaryBill, provider: provider }}
+                      className="px-3 py-1.5 text-xs rounded-md bg-[#E5CBB8] text-black hover:bg-[#d9b99f] transition"
                     >
-                      See Details →
+                      View Bill Details
                     </Link>
+                  );
+                } else if (provider?.website) {
+                  detailButton = (
+                    <a
+                      href={provider.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 text-xs rounded-md bg-[#E5CBB8] text-black hover:bg-[#d9b99f] transition"
+                    >
+                      Visit Provider
+                    </a>
+                  );
+                } else {
+                  detailButton = (
+                    <Link
+                      to="/providers"
+                      className="px-3 py-1.5 text-xs rounded-md bg-[#E5CBB8] text-black hover:bg-[#d9b99f] transition"
+                    >
+                      View Provider
+                    </Link>
+                  );
+                }
+
+                return (
+                  <div
+                    key={sub._id}
+                    className="rounded-lg border border-gray-700/20 px-5 py-4"
+                    style={{ backgroundColor: "var(--bg-secondary)" }}
+                  >
+                    {/* Provider header */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p
+                          className="text-base font-semibold"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          {sub.providerName}
+                        </p>
+                        <p className="text-xs uppercase text-gray-500 mt-1">
+                          {sub.type}
+                        </p>
+                      </div>
+
+                      {provider?.logo && (
+                        <img
+                          src={provider.logo}
+                          alt={sub.providerName}
+                          className="w-12 h-12 rounded object-cover hidden sm:block"
+                        />
+                      )}
+                    </div>
+
+                    {/* Details */}
+                    <div
+                      className="mt-4 space-y-2 text-xs"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <p>
+                        Subscription Status:{" "}
+                        <span className="font-semibold text-emerald-400">
+                          {sub.statusLabel}
+                        </span>
+                      </p>
+                      <p>Subscribed on {subscriptionDate}</p>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="mt-4">
+                      {detailButton}
+
+                      {extraCount > 0 && (
+                        <p
+                          className="text-[11px] mt-2"
+                          style={{ color: "var(--text-secondary)" }}
+                        >
+                          {extraCount} more available bill
+                          {extraCount > 1 ? "s" : ""}.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </motion.div>
-              ))}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

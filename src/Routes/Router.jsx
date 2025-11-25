@@ -12,6 +12,9 @@ import Profile from "../Pages/Profile";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
 import ErrorPage from "../Pages/ErrorPage";
+import Insights from "../Pages/Insights";
+import Providers from "../Pages/Providers";
+import PaymentGateway from "../Pages/PaymentGateway";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +28,11 @@ const router = createBrowserRouter([
       },
       {
         path: "bills",
-        Component: Bills,
+        element: (
+          <PrivateRoute>
+            <Bills></Bills>
+          </PrivateRoute>
+        ),
       },
       {
         path: "about",
@@ -36,14 +43,30 @@ const router = createBrowserRouter([
         Component: ContactUs,
       },
       {
-        path: "*",
-        Component: ErrorPage,
+        path: "insights",
+        element: (
+          <PrivateRoute>
+            <Insights></Insights>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "providers",
+        Component: Providers,
       },
       {
         path: "bills/:id",
         element: (
           <PrivateRoute>
             <BillDetails></BillDetails>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "payment/:id",
+        element: (
+          <PrivateRoute>
+            <PaymentGateway></PaymentGateway>
           </PrivateRoute>
         ),
       },
@@ -62,6 +85,10 @@ const router = createBrowserRouter([
             <Profile></Profile>
           </PrivateRoute>
         ),
+      },
+      {
+        path: "*",
+        Component: ErrorPage,
       },
     ],
   },
