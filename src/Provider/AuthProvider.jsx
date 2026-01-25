@@ -1,18 +1,16 @@
 import React, { createContext, useEffect, useState } from "react";
+import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import {
-  createUserWithEmailAndPassword,
   getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  signOut,
-  sendPasswordResetEmail,
+  signOut as firebaseSignOut,
 } from "firebase/auth";
 import app from "../Firebase/Firebase.config";
 
-
 export const AuthContext = createContext();
+
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
@@ -20,51 +18,148 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const createUser = (email, password) => {
-    setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
-  };
-
-  const signIn = (email, password) => {
-    setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
-  };
-
-  const googleSignIn = () => {
-    setLoading(true);
-    return signInWithPopup(auth, googleProvider);
-  };
-
-  const resetPassword = (email) => {
-    return sendPasswordResetEmail(auth, email);
-  };
-
-  const logOut = () => {
-    setLoading(true);
-    return signOut(auth);
-  };
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => {
-      unsubscribe();
-    };
+    // Check if user is logged in on mount
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+
+    if (token && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Failed to parse saved user:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    }
+    setLoading(false);
   }, []);
+
+  const createUser = async ({ name, email, password, confirmPassword }) => {
+    setLoading(true);
+    try {
+      console.log("Creating user with:", { name, email });
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
+
+      console.log("Registration response:", response.data);
+      const { token, user: userData } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      setLoading(false);
+      console.error("Registration error in AuthProvider:", error);
+      throw error;
+    }
+  };
+
+  const signIn = async (email, password) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        email,
+        password,
+      });
+
+      const { token, user: userData } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+      setLoading(false);
+      return response.data;
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  const googleSignIn = async () => {
+    setLoading(true);
+    try {
+      // Sign in with Google using Firebase
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+
+      // Register/Login with backend to get JWT token
+      try {
+        // Try to register first (in case it's a new user)
+        const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+          email: firebaseUser.email,
+          name: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          password: `google_${firebaseUser.uid}_${Date.now()}`, // Random password for Google users
+        });
+
+        const { token, user: userData } = response.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+        return response.data;
+      } catch (registerError) {
+        // If registration fails (user exists), try login
+        if (registerError.response?.status === 400) {
+          // User already exists, they need to use regular login
+          // For now, create a session without password
+          const userData = {
+            email: firebaseUser.email,
+            name: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+          };
+          // Set user without backend token (limited functionality)
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+          console.warn(
+            "Google user exists but can't login without password. Limited functionality.",
+          );
+          return { user: userData };
+        }
+        throw registerError;
+      }
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logOut = async () => {
+    setLoading(true);
+    try {
+      // Sign out from Firebase if user signed in with Google
+      await firebaseSignOut(auth);
+    } catch (error) {
+      console.log("Firebase signout error (may not be signed in):", error);
+    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setLoading(false);
+    return Promise.resolve();
+  };
+
+  const resetPassword = () => {
+    throw new Error("Password reset not implemented yet");
+  };
 
   const authData = {
     user,
     setUser,
     loading,
-    auth,
     createUser,
     signIn,
     googleSignIn,
     resetPassword,
     logOut,
   };
+
   return (
     <AuthContext.Provider value={authData}>{children}</AuthContext.Provider>
   );

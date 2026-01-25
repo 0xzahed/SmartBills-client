@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { motion } from "framer-motion";
-import { API_BASE_URL } from "../config";
 
 const MotionHeader = motion.div;
 const MotionCard = motion.div;
@@ -99,7 +99,7 @@ const SubscriptionDetails = () => {
         if (!isActive || controller.signal.aborted) return;
         console.error("Subscription details fetch error:", err);
         setError(
-          "We could not load this subscription right now. Please try again later."
+          "We could not load this subscription right now. Please try again later.",
         );
       } finally {
         if (isActive) {

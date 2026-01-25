@@ -58,39 +58,20 @@ const Bills = () => {
 
     setLoading(true);
 
-    console.log("🔵 Bills.jsx - Starting API calls");
-    console.log("📧 User email:", user?.email);
-    console.log("🌐 API Base URL:", API_BASE_URL);
-
     Promise.all([
-      axios.get(`${API_BASE_URL}/subscriptions`, { email: user?.email || "" }),
-      axios.get(`${API_BASE_URL}/providers`),
-      axios.get(`${API_BASE_URL}/bills`),
+      axios.get(`${API_BASE_URL}/subscriptions`, {
+        params: { email: user.email },
+        signal: controller.signal,
+      }),
+      axios.get(`${API_BASE_URL}/providers`, { signal: controller.signal }),
+      axios.get(`${API_BASE_URL}/bills`, { signal: controller.signal }),
     ])
       .then(([subsRes, providersRes, billsRes]) => {
         if (!isMounted) return;
 
-        console.log("✅ Bills.jsx - API responses received:");
-        console.log("📦 Subscriptions response:", subsRes);
-        console.log("📦 Providers response:", providersRes);
-        console.log("📦 Bills response:", billsRes);
-
-        // Extract data from API responses
-        const subsData = Array.isArray(subsRes.data)
-          ? subsRes.data
-          : subsRes.data?.data || [];
-        const providersData = Array.isArray(providersRes.data)
-          ? providersRes.data
-          : providersRes.data?.providers || providersRes.data?.data || [];
-        const billsData = Array.isArray(billsRes.data)
-          ? billsRes.data
-          : billsRes.data?.bills || billsRes.data?.data || [];
-
-        console.log("📊 Subscriptions data:", subsData);
-        console.log("📊 Providers data:", providersData);
-        console.log("📊 Bills data:", billsData);
-        console.log("📊 Providers is array?", Array.isArray(providersData));
-        console.log("📊 Bills is array?", Array.isArray(billsData));
+        const subsData = subsRes.data || [];
+        const providersData = providersRes.data || [];
+        const billsData = billsRes.data || [];
 
         // provider lookup map
         const providerLookup = providersData.reduce((acc, p) => {
@@ -117,17 +98,10 @@ const Bills = () => {
         setProviderMap(providerLookup);
         setBillsByType(grouped);
         setAllBills(enhancedBills);
-
-        console.log("✅ Bills.jsx - State updated successfully");
-        console.log("📌 Total subscriptions:", subsData.length);
-        console.log("📌 Total providers:", providersData.length);
-        console.log("📌 Total bills:", billsData.length);
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.error("❌ Bills.jsx - API Error:", err);
-        console.error("❌ Error response:", err.response);
-        console.error("❌ Error message:", err.message);
+        console.error("Load error:", err);
       })
       .finally(() => {
         if (isMounted) setLoading(false);

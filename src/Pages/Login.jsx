@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../Provider/AuthProvider";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
@@ -146,6 +146,46 @@ const Login = () => {
           </span>
         </button>
 
+        {/* Demo Credential Buttons */}
+        <div className="mt-4 space-y-2">
+          <p
+            className="text-xs text-center"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Quick Login (Demo Accounts)
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setEmail("user@demo.com");
+                setPassword("User123");
+              }}
+              type="button"
+              className="flex-1 text-xs py-2 px-3 rounded-lg border hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
+              style={{
+                borderColor: "var(--border-color)",
+                color: "var(--text-primary)",
+              }}
+            >
+              👤 Demo User
+            </button>
+            <button
+              onClick={() => {
+                setEmail("admin@demo.com");
+                setPassword("Admin123");
+              }}
+              type="button"
+              className="flex-1 text-xs py-2 px-3 rounded-lg border hover:bg-purple-50 dark:hover:bg-purple-900/20 transition"
+              style={{
+                borderColor: "var(--border-color)",
+                color: "var(--text-primary)",
+              }}
+            >
+              👑 Demo Admin
+            </button>
+          </div>
+        </div>
+
         <div className="flex items-center gap-2 my-6">
           <div
             className="flex-1 h-px"
@@ -232,9 +272,9 @@ const Login = () => {
         <div className="mt-6 text-center">
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             Don't have an account?{" "}
-            <a href="/register" className="text-blue-600 hover:underline">
+            <Link to="/auth/register" className="text-blue-600 hover:underline">
               Register here
-            </a>
+            </Link>
           </p>
         </div>
 

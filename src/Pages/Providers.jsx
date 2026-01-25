@@ -1,10 +1,10 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { motion as Motion } from "framer-motion";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import { AuthContext } from "../Provider/AuthProvider";
-import { API_BASE_URL } from "../config";
 
 const Providers = () => {
   const { user } = useContext(AuthContext);
@@ -21,10 +21,11 @@ const Providers = () => {
 
     setLoadingProviders(true);
     axios
-      .get(`${API_BASE_URL}/providers`, { signal: controller.signal })
+      .get(`${API_BASE_URL}/providers`)
       .then((res) => {
         if (!isMounted) return;
-        setProviders(Array.isArray(res.data) ? res.data : []);
+        const providerData = res.data?.providers || res.data;
+        setProviders(Array.isArray(providerData) ? providerData : []);
       })
       .catch((err) => {
         if (!isMounted || controller.signal.aborted) return;
@@ -57,7 +58,6 @@ const Providers = () => {
     axios
       .get(`${API_BASE_URL}/subscriptions`, {
         params: { email: user.email },
-        signal: controller.signal,
       })
       .then((res) => {
         if (!isMounted) return;

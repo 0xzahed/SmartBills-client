@@ -1,31 +1,26 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { API_BASE_URL } from "../config";
-const MotionCard = motion.div;
-
-const detailItems = [
-  { key: "description", label: "Overview" },
-  { key: "billingType", label: "Billing Type" },
-  { key: "paymentMethod", label: "Payment Methods" },
-  { key: "zone", label: "Service Zone" },
-  { key: "lateFeePolicy", label: "Late Fee Policy" },
-  { key: "hotline", label: "Hotline" },
-  { key: "supportEmail", label: "Support Email" },
-  { key: "address", label: "Address" },
-];
-
-const formatValue = (value) => {
-  if (typeof value !== "string") return value;
-  return value.replace(/_/g, " ");
-};
+import { API_BASE_URL } from "../config/api";
+import {
+  MdHome,
+  MdChevronRight,
+  MdPayment,
+  MdPhone,
+  MdEmail,
+  MdLocationOn,
+  MdInfo,
+  MdReceipt,
+} from "react-icons/md";
+import { DetailsSkeleton } from "../Components/SkeletonLoader/SkeletonLoader";
 
 const BillDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [bill, setBill] = useState(null);
   const [provider, setProvider] = useState(null);
+  const [relatedBills, setRelatedBills] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,33 +29,42 @@ const BillDetails = () => {
 
     const fetchData = async () => {
       try {
-        const billRes = await axios.get(`${API_BASE_URL}/bills/${id}`, {
-          signal: controller.signal,
-        });
+        const [billRes, providersRes, allBillsRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/bills/${id}`, {
+            signal: controller.signal,
+          }),
+          axios.get(`${API_BASE_URL}/providers`, { signal: controller.signal }),
+          axios.get(`${API_BASE_URL}/bills`, { signal: controller.signal }),
+        ]);
 
         if (!isMounted) return;
 
         const billData = billRes.data;
         setBill(billData);
 
-        if (billData?.category) {
-          const providersRes = await axios.get(`${API_BASE_URL}/providers`, {
-            signal: controller.signal,
-          });
+        const providers = Array.isArray(providersRes.data)
+          ? providersRes.data
+          : [];
+        const matchedProvider = providers.find(
+          (p) => p.type?.toLowerCase() === billData.category?.toLowerCase(),
+        );
 
-          if (!isMounted) return;
-
-          const providers = Array.isArray(providersRes.data)
-            ? providersRes.data
-            : [];
-          const matchedProvider = providers.find(
-            (p) => p.type?.toLowerCase() === billData.category?.toLowerCase()
-          );
-
-          if (matchedProvider) {
-            setProvider(matchedProvider);
-          }
+        if (matchedProvider) {
+          setProvider(matchedProvider);
         }
+
+        // Get related bills (same category, different ID)
+        const allBills = Array.isArray(allBillsRes.data)
+          ? allBillsRes.data
+          : [];
+        const related = allBills
+          .filter(
+            (b) =>
+              b.category?.toLowerCase() === billData.category?.toLowerCase() &&
+              b._id !== billData._id,
+          )
+          .slice(0, 4);
+        setRelatedBills(related);
       } catch (error) {
         if (!isMounted || controller.signal.aborted) return;
         console.error("Bill details fetch error:", error);
@@ -79,15 +83,20 @@ const BillDetails = () => {
     };
   }, [id]);
 
-  if (loading || !bill)
+  if (loading) return <DetailsSkeleton />;
+
+  if (!bill) {
     return (
-      <div
-        className="flex justify-center items-center min-h-screen"
-        style={{ backgroundColor: "var(--bg-primary)" }}
-      >
-        <span className="loading loading-bars loading-lg"></span>
+      <div className="min-h-screen flex items-center justify-center bg-base-100">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Bill Not Found</h2>
+          <Link to="/bills" className="btn btn-primary">
+            Back to Bills
+          </Link>
+        </div>
       </div>
     );
+  }
 
   const handlePayNow = () => {
     navigate(`/payment/${bill._id}`, {
@@ -96,123 +105,286 @@ const BillDetails = () => {
   };
 
   return (
-    <section
-      className="min-h-screen py-12 sm:py-14 md:py-16"
-      style={{ backgroundColor: "var(--bg-primary)" }}
-    >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
-        <MotionCard
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="card rounded-2xl border border-gray-800/20 overflow-hidden"
-          style={{ backgroundColor: "var(--card-bg)" }}
-        >
-          <img
-            src={bill.image}
-            alt={bill.title}
-            className="w-full h-48 sm:h-56 md:h-64 object-cover"
-          />
+    <section className="min-h-screen py-12 bg-base-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center gap-2 text-sm mb-6">
+          <Link
+            to="/"
+            className="flex items-center gap-1 hover:text-[#E5CBB8] transition"
+          >
+            <MdHome className="w-4 h-4" />
+            Home
+          </Link>
+          <MdChevronRight className="w-4 h-4 text-base-content/50" />
+          <Link to="/bills" className="hover:text-[#E5CBB8] transition">
+            Bills
+          </Link>
+          <MdChevronRight className="w-4 h-4 text-base-content/50" />
+          <span className="text-base-content/70">
+            {bill.title || "Bill Details"}
+          </span>
+        </nav>
 
-          <div className="p-5 sm:p-6 md:p-8 space-y-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2
-                  className="text-xl sm:text-2xl font-semibold"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {bill.title}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Image Gallery Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="card bg-base-200 shadow-xl"
+            >
+              <figure className="h-96">
+                <img
+                  src={
+                    bill.image ||
+                    provider?.logo ||
+                    "https://via.placeholder.com/800x400"
+                  }
+                  alt={bill.title}
+                  className="w-full h-full object-cover"
+                />
+              </figure>
+            </motion.div>
+
+            {/* Overview Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="card bg-base-200 shadow-xl"
+            >
+              <div className="card-body">
+                <h2 className="card-title text-2xl flex items-center gap-2">
+                  <MdInfo className="w-6 h-6 text-[#E5CBB8]" />
+                  Overview
                 </h2>
-                <p className="text-xs sm:text-sm uppercase tracking-wide text-gray-400 mt-1">
-                  {bill.category}
+                <div className="divider my-2"></div>
+                <p className="text-base-content/80 leading-relaxed">
+                  {bill.description ||
+                    `This is a ${bill.category} bill from ${provider?.name || "the provider"}. Pay your bill securely and receive instant confirmation.`}
                 </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-400">Amount</p>
-                <p className="text-2xl font-bold text-emerald-500">
-                  ৳{bill.amount}
-                </p>
-              </div>
-            </div>
-
-            {provider ? (
-              <div
-                className="border border-gray-800/10 rounded-xl p-4"
-                style={{ backgroundColor: "var(--bg-secondary)" }}
-              >
-                <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
-                    <h3
-                      className="text-base sm:text-lg font-semibold"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Provider Information
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {provider.name || "Unknown Provider"}
+                    <p className="text-sm text-base-content/60">Category</p>
+                    <p className="font-semibold">{bill.category}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-base-content/60">Amount</p>
+                    <p className="font-semibold text-2xl text-[#E5CBB8]">
+                      ৳{parseFloat(bill.amount || 0).toFixed(2)}
                     </p>
                   </div>
-                  {provider.logo ? (
-                    <img
-                      src={provider.logo}
-                      alt={provider.name || "Provider logo"}
-                      className="h-16 w-16 object-contain rounded-md"
-                    />
-                  ) : null}
+                  {bill.dueDate && (
+                    <div>
+                      <p className="text-sm text-base-content/60">Due Date</p>
+                      <p className="font-semibold">
+                        {new Date(bill.dueDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm text-base-content/60">Billing Type</p>
+                    <p className="font-semibold">
+                      {bill.billingType || "Monthly"}
+                    </p>
+                  </div>
                 </div>
+              </div>
+            </motion.div>
 
-                <div className="grid gap-3 sm:grid-cols-2 text-sm">
-                  {detailItems.map(({ key, label }) => {
-                    const value = provider[key];
-                    if (!value) return null;
-
-                    return (
-                      <div key={key}>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                          {label}
-                        </p>
-                        <p
-                          className="mt-1 text-xs"
-                          style={{ color: "var(--text-primary)" }}
-                        >
-                          {formatValue(value)}
-                        </p>
-                      </div>
-                    );
-                  })}
+            {/* Payment Information Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="card bg-base-200 shadow-xl"
+            >
+              <div className="card-body">
+                <h2 className="card-title text-2xl flex items-center gap-2">
+                  <MdReceipt className="w-6 h-6 text-[#E5CBB8]" />
+                  Payment Information
+                </h2>
+                <div className="divider my-2"></div>
+                <div className="space-y-4">
+                  {bill.paymentMethod && (
+                    <div>
+                      <p className="text-sm text-base-content/60">
+                        Accepted Payment Methods
+                      </p>
+                      <p className="font-semibold">{bill.paymentMethod}</p>
+                    </div>
+                  )}
+                  {bill.lateFeePolicy && (
+                    <div className="alert alert-warning">
+                      <MdInfo className="w-5 h-5" />
+                      <span className="text-sm">{bill.lateFeePolicy}</span>
+                    </div>
+                  )}
+                  {bill.zone && (
+                    <div>
+                      <p className="text-sm text-base-content/60">
+                        Service Zone
+                      </p>
+                      <p className="font-semibold">{bill.zone}</p>
+                    </div>
+                  )}
                 </div>
-
-                {provider.website ? (
-                  <a
-                    href={provider.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block mt-4 px-3 py-1.5 text-xs rounded-md bg-[#E5CBB8] text-black font-medium hover:bg-[#d9b99f] transition"
-                  >
-                    Visit Provider Website
-                  </a>
-                ) : null}
               </div>
-            ) : null}
+            </motion.div>
 
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-emerald-300">
-                  Ready to Pay?
-                </p>
-                <p className="text-xs text-emerald-100">
-                  Complete your payment in a few simple steps.
-                </p>
-              </div>
-              <button
-                onClick={handlePayNow}
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-md bg-emerald-500 text-black hover:bg-emerald-400 transition"
+            {/* Provider Details Section */}
+            {provider && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="card bg-base-200 shadow-xl"
               >
-                Pay Bill Now
-              </button>
-            </div>
+                <div className="card-body">
+                  <h2 className="card-title text-2xl">Provider Details</h2>
+                  <div className="divider my-2"></div>
+                  <div className="flex items-start gap-4">
+                    {provider.logo && (
+                      <img
+                        src={provider.logo}
+                        alt={provider.name}
+                        className="w-20 h-20 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold mb-2">
+                        {provider.name}
+                      </h3>
+                      <div className="space-y-2 text-sm">
+                        {provider.hotline && (
+                          <p className="flex items-center gap-2">
+                            <MdPhone className="w-4 h-4 text-[#E5CBB8]" />
+                            {provider.hotline}
+                          </p>
+                        )}
+                        {provider.supportEmail && (
+                          <p className="flex items-center gap-2">
+                            <MdEmail className="w-4 h-4 text-[#E5CBB8]" />
+                            {provider.supportEmail}
+                          </p>
+                        )}
+                        {provider.address && (
+                          <p className="flex items-center gap-2">
+                            <MdLocationOn className="w-4 h-4 text-[#E5CBB8]" />
+                            {provider.address}
+                          </p>
+                        )}
+                      </div>
+                      {provider.website && (
+                        <a
+                          href={provider.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-outline mt-4"
+                        >
+                          Visit Website
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
-        </MotionCard>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Payment Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="card bg-gradient-to-br from-[#E5CBB8] to-[#D4A574] text-black shadow-xl sticky top-24"
+            >
+              <div className="card-body">
+                <h3 className="card-title text-2xl">Bill Summary</h3>
+                <div className="divider my-2 bg-black/20"></div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Bill Amount:</span>
+                    <span className="text-2xl font-bold">
+                      ৳{parseFloat(bill.amount || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  {bill.dueDate && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span>Due Date:</span>
+                      <span className="font-semibold">
+                        {new Date(bill.dueDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handlePayNow}
+                  className="btn btn-lg w-full bg-black hover:bg-gray-800 text-white border-none mt-4"
+                >
+                  <MdPayment className="w-6 h-6" />
+                  Pay Now
+                </button>
+                <p className="text-xs text-center text-black/70 mt-2">
+                  Secure payment processing with instant confirmation
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Related Bills Section */}
+        {relatedBills.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-12"
+          >
+            <h2 className="text-3xl font-bold mb-6">Related Bills</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedBills.map((relatedBill) => (
+                <Link
+                  key={relatedBill._id}
+                  to={`/bills/${relatedBill._id}`}
+                  className="card bg-base-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                >
+                  <figure className="h-48">
+                    <img
+                      src={
+                        relatedBill.image ||
+                        "https://via.placeholder.com/300x200"
+                      }
+                      alt={relatedBill.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </figure>
+                  <div className="card-body p-4">
+                    <h3 className="card-title text-base">
+                      {relatedBill.title}
+                    </h3>
+                    <p className="text-sm text-base-content/70 line-clamp-2">
+                      {relatedBill.category}
+                    </p>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="badge badge-outline text-xs">
+                        {relatedBill.category}
+                      </span>
+                      <span className="font-bold text-[#E5CBB8]">
+                        ৳{parseFloat(relatedBill.amount || 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );

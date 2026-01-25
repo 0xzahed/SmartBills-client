@@ -1,9 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosConfig";
+import { API_BASE_URL } from "../config/api";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { AuthContext } from "../Provider/AuthProvider";
-import { API_BASE_URL } from "../config";
 
 const timeframeOptions = [
   { label: "30 Days", value: "30" },
@@ -66,27 +66,36 @@ const Insights = () => {
       setError("");
       toast.loading("Loading insights...", { id: "insights-loader" });
 
+      console.log("🔵 Insights.jsx - Starting API calls");
+      console.log("📧 User email:", user.email);
+      console.log("🌐 API Base URL:", API_BASE_URL);
+      console.log("⏱️ Timeframe:", timeframe);
+
       try {
         const [billsResponse, insightsResponse] = await Promise.all([
-          axios.get(`${API_BASE_URL}/mybills`, {
-            params: { email: user.email },
-            signal: controller.signal,
+          axiosInstance.get(`${API_BASE_URL}/mybills?email=${user.email}`),
+          axiosInstance.post(`${API_BASE_URL}/ai/insights`, {
+            email: user.email,
+            timeframe,
           }),
-          axios.post(
-            `${API_BASE_URL}/ai/insights`,
-            { email: user.email, timeframe },
-            { signal: controller.signal }
-          ),
         ]);
+
+        console.log("✅ Insights - Bills Response:", billsResponse);
+        console.log("✅ Insights - AI Response:", insightsResponse);
 
         if (!isMounted) return;
 
-        setBills(Array.isArray(billsResponse.data) ? billsResponse.data : []);
+        const billsData = billsResponse.data?.bills || billsResponse.data;
+        setBills(Array.isArray(billsData) ? billsData : []);
         setServerSummary(insightsResponse.data || null);
         toast.success("Insights updated.", { id: "insights-loader" });
       } catch (err) {
         if (!isMounted || controller.signal.aborted) return;
-        console.error("Insights fetch error:", err);
+        console.error("❌ Insights fetch error:", err);
+        console.error("❌ Error response:", err.response);
+        console.error("❌ Error status:", err.response?.status);
+        console.error("❌ Error data:", err.response?.data);
+        console.error("❌ Error config:", err.config);
         setError("Unable to load insights right now. Please try again later.");
         toast.error("Failed to load insights.", { id: "insights-loader" });
       } finally {
@@ -241,7 +250,7 @@ const Insights = () => {
               <InsightCard
                 title="Total Spent"
                 value={formatAmount(
-                  serverSummary?.summary?.totalSpent ?? derivedMetrics.total
+                  serverSummary?.summary?.totalSpent ?? derivedMetrics.total,
                 )}
                 subtext={`Across ${
                   serverSummary?.summary?.billCount ?? derivedMetrics.count

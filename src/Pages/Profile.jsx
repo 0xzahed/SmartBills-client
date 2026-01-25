@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../Provider/AuthProvider";
-import { updateProfile } from "firebase/auth";
+import axiosInstance from "../utils/axiosConfig";
+import { API_BASE_URL } from "../config/api";
 import { motion } from "framer-motion";
 import {
   FiUser,
@@ -21,58 +22,8 @@ const Profile = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    displayName: user?.displayName || "",
+    displayName: user?.name || user?.displayName || "",
   });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      toast.loading("Updating profile...", { id: "update-profile" });
-
-      await updateProfile(user, {
-        displayName: formData.displayName,
-      });
-
-      setUser({
-        ...user,
-        displayName: formData.displayName,
-      });
-
-      setIsEditing(false);
-      toast.success("Profile updated successfully!", { id: "update-profile" });
-
-      Swal.fire({
-        title: "Success!",
-        text: "Your profile has been updated successfully.",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } catch (error) {
-      console.error("Profile update error:", error);
-      toast.error("Failed to update profile. Please try again.", {
-        id: "update-profile",
-      });
-
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to update profile. Please try again.",
-        icon: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -89,44 +40,104 @@ const Profile = () => {
     }
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "smartbills_profile");
-    formData.append("cloud_name", "dvujgthwe");
 
     try {
       toast.loading("Uploading photo...", { id: "upload-photo" });
 
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dvujgthwe/image/upload",
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Image = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
+
+      // Upload to backend (backend handles Cloudinary)
+      const uploadResponse = await axiosInstance.post(
+        `${API_BASE_URL}/upload/image`,
         {
-          method: "POST",
-          body: formData,
-        }
+          image: base64Image,
+          folder: "profile-photos",
+        },
       );
 
-      const data = await response.json();
-
-      if (data.secure_url) {
-        await updateProfile(user, {
-          photoURL: data.secure_url,
-        });
-
-        setUser({
-          ...user,
-          photoURL: data.secure_url,
-        });
-
-        setShowPhotoModal(false);
-        toast.success("Photo updated successfully!", { id: "upload-photo" });
-      } else {
-        throw new Error("Upload failed");
+      if (!uploadResponse.data?.url) {
+        throw new Error("Failed to get image URL from server");
       }
+
+      // Update user profile with new photo URL
+      const response = await axiosInstance.put(
+        `${API_BASE_URL}/users/profile`,
+        {
+          photoURL: uploadResponse.data.url,
+        },
+      );
+
+      const updatedUser = response.data?.user || {
+        ...user,
+        photoURL: uploadResponse.data.url,
+      };
+
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      setShowPhotoModal(false);
+      toast.success("Photo updated successfully!", { id: "upload-photo" });
     } catch (error) {
       console.error("Photo upload error:", error);
-      toast.error("Failed to upload photo", { id: "upload-photo" });
+      const errorMessage =
+        error.response?.data?.details ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to upload photo";
+      toast.error(errorMessage, { id: "upload-photo" });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+
+    if (!formData.displayName.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.put(
+        `${API_BASE_URL}/users/profile`,
+        {
+          name: formData.displayName,
+        },
+      );
+
+      const updatedUser = response.data?.user || {
+        ...user,
+        name: formData.displayName,
+        displayName: formData.displayName,
+      };
+
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      console.error("Profile update error:", error);
+      toast.error(error.response?.data?.error || "Failed to update profile");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -202,13 +213,13 @@ const Profile = () => {
                 <img
                   src={
                     user?.photoURL ||
-                    "https://i.postimg.cc/5y8zTvMg/default-avatar.png"
+                    "https://ui-avatars.com/api/?name=User&background=10b981&color=fff&size=200"
                   }
                   alt="Profile"
                   className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-emerald-500 object-cover transition-all group-hover:brightness-75"
                   onError={(e) => {
                     e.target.src =
-                      "https://i.postimg.cc/5y8zTvMg/default-avatar.png";
+                      "https://ui-avatars.com/api/?name=User&background=10b981&color=fff&size=200";
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -221,7 +232,7 @@ const Profile = () => {
                 className="text-lg sm:text-xl md:text-2xl font-semibold mt-4"
                 style={{ color: "var(--text-primary)" }}
               >
-                {user?.displayName || "User"}
+                {user?.name || user?.displayName || "User"}
               </h3>
               <p
                 className="text-sm sm:text-base"
@@ -351,13 +362,13 @@ const Profile = () => {
                 <img
                   src={
                     user?.photoURL ||
-                    "https://i.postimg.cc/5y8zTvMg/default-avatar.png"
+                    "https://ui-avatars.com/api/?name=User&background=10b981&color=fff&size=200"
                   }
                   alt="Current"
                   className="w-32 h-32 rounded-full mx-auto border-4 border-emerald-500 object-cover"
                   onError={(e) => {
                     e.target.src =
-                      "https://i.postimg.cc/5y8zTvMg/default-avatar.png";
+                      "https://ui-avatars.com/api/?name=User&background=10b981&color=fff&size=200";
                   }}
                 />
               </div>

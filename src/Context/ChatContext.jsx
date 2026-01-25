@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 import { AuthContext } from "../Provider/AuthProvider";
-import { API_BASE_URL } from "../config";
 
 export const ChatContext = createContext();
 
@@ -57,7 +57,7 @@ export const ChatProvider = ({ children }) => {
             "x-user-email": user?.email || "",
           },
           timeout: 30000, // 30 second timeout
-        }
+        },
       );
 
       const aiMessage = {
@@ -81,7 +81,7 @@ export const ChatProvider = ({ children }) => {
         errorText =
           error.response.data.error || error.response.data.message || errorText;
         debugInfo = `\n\nError: ${error.response.status} - ${JSON.stringify(
-          error.response.data
+          error.response.data,
         )}`;
       } else if (error.request) {
         // Request made but no response

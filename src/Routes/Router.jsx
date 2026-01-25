@@ -15,6 +15,8 @@ import ErrorPage from "../Pages/ErrorPage";
 import Insights from "../Pages/Insights";
 import Providers from "../Pages/Providers";
 import PaymentGateway from "../Pages/PaymentGateway";
+import Dashboard from "../Pages/Dashboard";
+import FAQ from "../Pages/FAQ";
 
 const router = createBrowserRouter([
   {
@@ -27,14 +29,6 @@ const router = createBrowserRouter([
         Component: Home,
       },
       {
-        path: "bills",
-        element: (
-          <PrivateRoute>
-            <Bills></Bills>
-          </PrivateRoute>
-        ),
-      },
-      {
         path: "about",
         Component: AboutUs,
       },
@@ -43,12 +37,12 @@ const router = createBrowserRouter([
         Component: ContactUs,
       },
       {
-        path: "insights",
-        element: (
-          <PrivateRoute>
-            <Insights></Insights>
-          </PrivateRoute>
-        ),
+        path: "faq",
+        Component: FAQ,
+      },
+      {
+        path: "bills",
+        Component: Bills,
       },
       {
         path: "providers",
@@ -56,9 +50,21 @@ const router = createBrowserRouter([
       },
       {
         path: "bills/:id",
+        Component: BillDetails,
+      },
+      {
+        path: "dashboard",
         element: (
           <PrivateRoute>
-            <BillDetails></BillDetails>
+            <Dashboard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "insights",
+        element: (
+          <PrivateRoute>
+            <Insights />
           </PrivateRoute>
         ),
       },
@@ -66,7 +72,7 @@ const router = createBrowserRouter([
         path: "payment/:id",
         element: (
           <PrivateRoute>
-            <PaymentGateway></PaymentGateway>
+            <PaymentGateway />
           </PrivateRoute>
         ),
       },
@@ -74,7 +80,7 @@ const router = createBrowserRouter([
         path: "mybills",
         element: (
           <PrivateRoute>
-            <MyBills></MyBills>
+            <MyBills />
           </PrivateRoute>
         ),
       },
@@ -82,13 +88,9 @@ const router = createBrowserRouter([
         path: "profile",
         element: (
           <PrivateRoute>
-            <Profile></Profile>
+            <Profile />
           </PrivateRoute>
         ),
-      },
-      {
-        path: "*",
-        Component: ErrorPage,
       },
     ],
   },
@@ -105,6 +107,10 @@ const router = createBrowserRouter([
         Component: Register,
       },
     ],
+  },
+  {
+    path: "*",
+    Component: ErrorPage,
   },
 ]);
 

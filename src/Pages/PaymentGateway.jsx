@@ -1,11 +1,11 @@
 import { useState, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Provider/AuthProvider";
+import { API_BASE_URL } from "../config/api";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { API_BASE_URL } from "../config";
 const MotionCard = motion.div;
 
 const PaymentGateway = () => {
@@ -101,14 +101,25 @@ const PaymentGateway = () => {
     };
 
     try {
+      console.log("🔵 PaymentGateway - Starting payment");
+      console.log("👤 User:", user);
+      console.log("💳 Payment Info:", paymentInfo);
+
       toast.loading("Processing payment...", { id: "payment-process" });
+
+      // Get Firebase token
+      const token = await user.getIdToken();
+      console.log("🔑 Token obtained for payment");
 
       // Save to mybills
       await axios.post(`${API_BASE_URL}/mybills`, paymentInfo, {
         headers: {
+          Authorization: `Bearer ${token}`,
           "x-user-email": paymentInfo.email,
         },
       });
+
+      console.log("✅ Payment saved to mybills");
 
       let emailNote = "Check your email for the invoice.";
       try {
@@ -128,8 +139,15 @@ const PaymentGateway = () => {
             paymentDate: new Date().toISOString().split("T")[0],
             phone: form.phone.value,
             address: form.address.value,
-          }
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
+
+        console.log("✅ Receipt email response:", receiptResponse.data);
 
         const emailStatus = receiptResponse.data?.emailStatus;
         if (!emailStatus?.sent) {
@@ -158,7 +176,10 @@ const PaymentGateway = () => {
         navigate("/bills");
       });
     } catch (error) {
-      console.error("Payment error:", error);
+      console.error("❌ Payment error:", error);
+      console.error("❌ Error response:", error.response);
+      console.error("❌ Error status:", error.response?.status);
+      console.error("❌ Error data:", error.response?.data);
       toast.error("Failed to process payment. Please try again.", {
         id: "payment-process",
       });

@@ -1,7 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../Provider/AuthProvider";
-import { useNavigate } from "react-router-dom";
-import { updateProfile } from "firebase/auth";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
@@ -11,9 +10,10 @@ import Swal from "sweetalert2";
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [photoURL, setPhotoURL] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { createUser, googleSignIn } = useContext(AuthContext);
@@ -29,6 +29,7 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validate password strength
     const error = validatePassword(password);
     if (error) {
       toast.error(error);
@@ -41,15 +42,27 @@ const Register = () => {
       return;
     }
 
+    // Validate password match
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match!");
+      Swal.fire({
+        title: "Password Mismatch!",
+        text: "Please make sure both passwords match.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     setLoading(true);
 
-    createUser(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        if (name || photoURL) {
-          return updateProfile(user, { displayName: name, photoURL });
-        }
-      })
+    // Send only email, password, and name to backend (NOT confirmPassword)
+    createUser({
+      name,
+      email,
+      password,
+      confirmPassword,
+    })
       .then(() => {
         toast.success("Account created successfully!");
         setLoading(false);
@@ -66,17 +79,29 @@ const Register = () => {
       })
       .catch((err) => {
         console.error("Registration error:", err);
+        console.error("Error response:", err.response);
+        console.error("Error data:", err.response?.data);
         setLoading(false);
 
         let errorMessage = "Registration failed. Please try again.";
-        if (err.code === "auth/email-already-in-use") {
+        if (err.response?.status === 400) {
           errorMessage =
+            err.response?.data?.error ||
+            err.response?.data?.message ||
             "This email is already registered. Please login instead.";
-        } else if (err.code === "auth/invalid-email") {
-          errorMessage = "Invalid email address.";
-        } else if (err.code === "auth/weak-password") {
+        } else if (err.response?.status === 500) {
           errorMessage =
-            "Password is too weak. Please use a stronger password.";
+            "Server error. " +
+            (err.response?.data?.error ||
+              err.response?.data?.message ||
+              "Please try again later.");
+        } else if (err.response?.data?.error) {
+          errorMessage = err.response.data.error;
+        } else if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.message === "Network Error") {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
         }
 
         toast.error(errorMessage);
@@ -198,22 +223,6 @@ const Register = () => {
               className="block mb-1 font-medium"
               style={{ color: "var(--text-primary)" }}
             >
-              Photo URL
-            </label>
-            <input
-              type="text"
-              value={photoURL}
-              onChange={(e) => setPhotoURL(e.target.value)}
-              placeholder="Enter your photo URL"
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label
-              className="block mb-1 font-medium"
-              style={{ color: "var(--text-primary)" }}
-            >
               Password
             </label>
             <div className="relative">
@@ -231,6 +240,32 @@ const Register = () => {
                 className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-800"
               >
                 {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label
+              className="block mb-1 font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Confirm Password
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="Confirm your password"
+                className="w-full border border-gray-300 rounded-lg p-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-800"
+              >
+                {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
           </div>
@@ -276,13 +311,12 @@ const Register = () => {
           </span>
         </button>
 
-
         <div className="mt-6 text-center">
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             Already have an account?{" "}
-            <a href="/login" className="text-blue-600 hover:underline">
+            <Link to="/auth/login" className="text-blue-600 hover:underline">
               Login here
-            </a>
+            </Link>
           </p>
         </div>
 

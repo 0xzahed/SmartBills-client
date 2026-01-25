@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Provider/AuthProvider";
-import axios from "axios";
+import axiosInstance from "../utils/axiosConfig";
+import { API_BASE_URL } from "../config/api";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import jsPDF from "jspdf";
@@ -13,25 +14,59 @@ const MyBills = () => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (user?.email) {
-      toast.loading("Loading your bills...", { id: "fetch-bills" });
-      axios
-        .get(
-          `https://smart-bills-server.vercel.app/mybills?email=${user.email}`
-        )
-        .then((res) => {
-          setBills(res.data);
-          toast.success(`${res.data.length} bills loaded successfully!`, {
-            id: "fetch-bills",
-          });
-        })
-        .catch((error) => {
-          console.error("Fetch error:", error);
-          toast.error("Failed to load bills. Please try again later.", {
-            id: "fetch-bills",
-          });
-        });
+    console.log("🟡 MyBills useEffect triggered");
+    console.log("🟡 User exists?", !!user);
+    console.log("🟡 User email?", user?.email);
+
+    if (!user?.email) {
+      console.log("⚠️ No user email found, skipping API call");
+      return;
     }
+
+    console.log("🔵 MyBills.jsx - Starting API call");
+    console.log("📧 User email:", user.email);
+    console.log("🌐 Full URL:", `${API_BASE_URL}/mybills?email=${user.email}`);
+
+    toast.loading("Loading your bills...", { id: "fetch-bills" });
+
+    axiosInstance
+      .get(`${API_BASE_URL}/mybills?email=${user.email}`)
+      .then((res) => {
+        console.log("✅ MyBills API Response:", res.data);
+        console.log("🔍 Response type:", typeof res.data);
+        console.log("🔍 Is array?", Array.isArray(res.data));
+        console.log("🔍 Has bills property?", res.data?.bills);
+
+        // Handle different API response structures
+        let billsData;
+        if (Array.isArray(res.data)) {
+          billsData = res.data;
+        } else if (res.data?.bills && Array.isArray(res.data.bills)) {
+          billsData = res.data.bills;
+        } else if (res.data?.data && Array.isArray(res.data.data)) {
+          billsData = res.data.data;
+        } else {
+          billsData = [];
+        }
+
+        console.log("📊 Final bills data:", billsData);
+        console.log("📊 Bills count:", billsData.length);
+
+        setBills(billsData);
+        toast.success(`${billsData.length} bills loaded successfully!`, {
+          id: "fetch-bills",
+        });
+      })
+      .catch((error) => {
+        console.error("❌ MyBills fetch error:", error);
+        console.error("❌ Error response:", error.response);
+        console.error("❌ Error status:", error.response?.status);
+        console.error("❌ Error data:", error.response?.data);
+        console.error("❌ Is it token error?", error.message);
+        toast.error("Failed to load bills. Please try again later.", {
+          id: "fetch-bills",
+        });
+      });
   }, [user]);
 
   const totalBills = bills.length;
@@ -50,8 +85,8 @@ const MyBills = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         toast.loading("Deleting bill...", { id: "delete-bill" });
-        axios
-          .delete(`https://smart-bills-server.vercel.app/mybills/${id}`)
+        axiosInstance
+          .delete(`${API_BASE_URL}/mybills/${id}`)
           .then(() => {
             setBills((prev) => prev.filter((b) => b._id !== id));
             toast.success("Bill deleted successfully!", { id: "delete-bill" });
@@ -88,16 +123,13 @@ const MyBills = () => {
     };
 
     toast.loading("Updating bill...", { id: "update-bill" });
-    axios
-      .put(
-        `https://smart-bills-server.vercel.app/mybills/${selectedBill._id}`,
-        updatedBill
-      )
+    axiosInstance
+      .put(`${API_BASE_URL}/mybills/${selectedBill._id}`, updatedBill)
       .then(() => {
         setBills((prev) =>
           prev.map((b) =>
-            b._id === selectedBill._id ? { ...b, ...updatedBill } : b
-          )
+            b._id === selectedBill._id ? { ...b, ...updatedBill } : b,
+          ),
         );
         setShowModal(false);
         toast.success("Bill updated successfully!", { id: "update-bill" });
@@ -170,7 +202,7 @@ const MyBills = () => {
       doc.text(
         "SmartBills — A Utility Bill Management System",
         14,
-        pageHeight - 10
+        pageHeight - 10,
       );
 
       doc.save("My_Paid_Bills_Report.pdf");
