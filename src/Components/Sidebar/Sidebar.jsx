@@ -63,16 +63,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         },
       ]
     : [
-        {
-          to: "/auth/login",
-          label: "Login",
-          icon: <MdLogin className="w-5 h-5" />,
-        },
-        {
-          to: "/auth/register",
-          label: "Register",
-          icon: <MdPersonAdd className="w-5 h-5" />,
-        },
+       
       ];
 
   return (
