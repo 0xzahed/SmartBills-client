@@ -125,80 +125,8 @@ const Login = () => {
           className="text-center mb-6"
           style={{ color: "var(--text-secondary)" }}
         >
-          Sign in to access your SmartBills dashboard
+          Sign in to SmartBills
         </p>
-
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="flex items-center justify-center gap-3 w-full border rounded-lg py-3 hover:opacity-90 transition duration-300 disabled:opacity-60"
-          style={{
-            borderColor: "var(--border-color)",
-            backgroundColor: "var(--bg-secondary)",
-          }}
-        >
-          <FcGoogle className="text-2xl" />
-          <span
-            className="font-medium"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Continue with Google
-          </span>
-        </button>
-
-        {/* Demo Credential Buttons */}
-        <div className="mt-4 space-y-2">
-          <p
-            className="text-xs text-center"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            Quick Login (Demo Accounts)
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                setEmail("user@demo.com");
-                setPassword("User123");
-              }}
-              type="button"
-              className="flex-1 text-xs py-2 px-3 rounded-lg border hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
-              style={{
-                borderColor: "var(--border-color)",
-                color: "var(--text-primary)",
-              }}
-            >
-              👤 Demo User
-            </button>
-            <button
-              onClick={() => {
-                setEmail("admin@demo.com");
-                setPassword("Admin123");
-              }}
-              type="button"
-              className="flex-1 text-xs py-2 px-3 rounded-lg border hover:bg-purple-50 dark:hover:bg-purple-900/20 transition"
-              style={{
-                borderColor: "var(--border-color)",
-                color: "var(--text-primary)",
-              }}
-            >
-              👑 Demo Admin
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 my-6">
-          <div
-            className="flex-1 h-px"
-            style={{ backgroundColor: "var(--border-color)" }}
-          ></div>
-          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            or
-          </span>
-          <div
-            className="flex-1 h-px"
-            style={{ backgroundColor: "var(--border-color)" }}
-          ></div>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -268,6 +196,38 @@ const Login = () => {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="flex items-center gap-2 my-6">
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "var(--border-color)" }}
+          ></div>
+          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            or
+          </span>
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "var(--border-color)" }}
+          ></div>
+        </div>
+
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="flex items-center justify-center gap-3 w-full border rounded-lg py-3 hover:opacity-90 transition duration-300 disabled:opacity-60"
+          style={{
+            borderColor: "var(--border-color)",
+            backgroundColor: "var(--bg-secondary)",
+          }}
+        >
+          <FcGoogle className="text-2xl" />
+          <span
+            className="font-medium"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Continue with Google
+          </span>
+        </button>
 
         <div className="mt-6 text-center">
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>

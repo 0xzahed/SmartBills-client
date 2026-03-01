@@ -63,7 +63,7 @@ const Bills = () => {
     console.log("🌐 API Base URL:", API_BASE_URL);
 
     Promise.all([
-      axios.get(`${API_BASE_URL}/subscriptions`, { email: user?.email || "" }),
+      axios.get(`${API_BASE_URL}/subscriptions`, { params: { email: user?.email || "" } }),
       axios.get(`${API_BASE_URL}/providers`),
       axios.get(`${API_BASE_URL}/bills`),
     ])
@@ -411,10 +411,7 @@ const Bills = () => {
                       <span className="badge badge-outline">
                         {bill.category}
                       </span>
-                      <span
-                        className="text-lg font-bold"
-                        style={{ color: "#E5CBB8" }}
-                      >
+                      <span className="text-lg font-bold text-black dark:text-white">
                         ৳{parseFloat(bill.amount || 0).toFixed(2)}
                       </span>
                     </div>

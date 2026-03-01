@@ -17,6 +17,7 @@ import Providers from "../Pages/Providers";
 import PaymentGateway from "../Pages/PaymentGateway";
 import Dashboard from "../Pages/Dashboard";
 import FAQ from "../Pages/FAQ";
+import DashboardLayout from "../Layouts/DashboardLayout";
 
 const router = createBrowserRouter([
   {
@@ -53,34 +54,10 @@ const router = createBrowserRouter([
         Component: BillDetails,
       },
       {
-        path: "dashboard",
-        element: (
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "insights",
-        element: (
-          <PrivateRoute>
-            <Insights />
-          </PrivateRoute>
-        ),
-      },
-      {
         path: "payment/:id",
         element: (
           <PrivateRoute>
             <PaymentGateway />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "mybills",
-        element: (
-          <PrivateRoute>
-            <MyBills />
           </PrivateRoute>
         ),
       },
@@ -91,6 +68,30 @@ const router = createBrowserRouter([
             <Profile />
           </PrivateRoute>
         ),
+      },
+    ],
+  },
+  {
+    // Admin Panel with Sidebar
+    path: "/",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "dashboard",
+        Component: Dashboard,
+      },
+      {
+        path: "insights",
+        Component: Insights,
+      },
+      {
+        path: "mybills",
+        Component: MyBills,
       },
     ],
   },
